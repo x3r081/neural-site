@@ -337,7 +337,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <li class="c">At the same moment, the CPU computes the others straight from RAM.</li>
         <li>The results are added up and passed on. After all 36 layers, the next token appears.</li>
       </ol>
-      <p>That whole loop runs about 16 times a second when writing code, and faster for everyday text.</p>
+      <p>That whole loop runs 13 to 19 times a second when writing code, and faster for everyday text.</p>
     </div>
   </section>
 
@@ -345,19 +345,20 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <p class="tag">Results</p>
     <div class="sec-body">
       <h2 id="res">Measured, not promised.</h2>
-      <p>Same PC, same model, in alternating runs against llama.cpp, the most widely used local AI runner, tuned for this model. The top two rows come from a research build of the same engine, timed on short prompts with a short context, which leaves more room on the graphics card for experts. The bottom three come from one long coding conversation with an earlier version of the server.</p>
-      <div class="chart" role="img" aria-label="Speed relative to llama.cpp. Research build: short everyday prompts 1.46 to 1.56 times, short code prompt 1.10 to 1.19 times. Server, in a 13,000-token coding conversation: reading the prompt 3.0 times, first answer 1.49 times, follow-up answer 0.92 times.">
+      <p>Same PC, same model, in alternating runs against llama.cpp, the most widely used local AI runner, tuned for this model. The top two rows come from a research build of the same engine, timed on short prompts with a short context, which leaves more room on the graphics card for experts. The bottom four come from today's server, with a fresh server for every run: reading a long prompt with both servers already warmed up, one long coding conversation (a 13,000-token code context, then follow-up questions), and one file rewrite compared over the same length of answer.</p>
+      <div class="chart" role="img" aria-label="Speed relative to llama.cpp. Research build: short everyday prompts 1.46 to 1.56 times, short code prompt 1.10 to 1.19 times. Server: reading a 13,000-token prompt 3.1 times; in a 13,000-token coding conversation, first answer 1.03 times, follow-up answers 1.24 times; rewriting a file just read 1.06 times.">
         <div class="crow"><div class="lbl">Short everyday prompts<br><span class="caption">research build</span></div><div class="ctrack" data-lo="1.46" data-hi="1.56" data-label="1.46&ndash;1.56&times;"></div></div>
         <div class="crow"><div class="lbl">Short code prompt<br><span class="caption">research build</span></div><div class="ctrack" data-lo="1.10" data-hi="1.19" data-label="1.10&ndash;1.19&times;"></div></div>
-        <div class="crow"><div class="lbl">Reading a 13,000-token code prompt<br><span class="caption">server</span></div><div class="ctrack" data-lo="3.0" data-hi="3.0" data-label="3.0&times;"></div></div>
-        <div class="crow"><div class="lbl">First answer after it<br><span class="caption">server</span></div><div class="ctrack" data-lo="1.49" data-hi="1.49" data-label="1.49&times;"></div></div>
-        <div class="crow"><div class="lbl">Follow-up answer<br><span class="caption">server, conversation warm</span></div><div class="ctrack" data-lo="0.92" data-hi="0.92" data-label="0.92&times;"></div></div>
+        <div class="crow"><div class="lbl">Reading a 13,000-token code prompt<br><span class="caption">server, both warmed up</span></div><div class="ctrack" data-lo="3.1" data-hi="3.1" data-label="3.1&times;"></div></div>
+        <div class="crow"><div class="lbl">First answer after a long prompt<br><span class="caption">server, median of 5 runs</span></div><div class="ctrack" data-lo="1.03" data-hi="1.03" data-label="1.03&times;"></div></div>
+        <div class="crow"><div class="lbl">Follow-up answers<br><span class="caption">server</span></div><div class="ctrack" data-lo="1.24" data-hi="1.24" data-label="1.24&times;"></div></div>
+        <div class="crow"><div class="lbl">Rewriting a file just read<br><span class="caption">server, same answer length</span></div><div class="ctrack" data-lo="1.06" data-hi="1.06" data-label="1.06&times;"></div></div>
         <div class="ticks"><div></div><div class="scale" id="scale"></div></div>
         <div class="chart-key"><span><i class="sw cpu"></i>&nbsp;Neural, up to llama.cpp's speed (the line at 1&times;)</span><span><i class="sw gpu"></i>&nbsp;faster than llama.cpp (faded: spread across runs and settings)</span></div>
       </div>
-      <p>In short: Neural is clearly faster at reading long prompts and at first answers. Once a long conversation was warm, llama.cpp caught up and was slightly faster on the follow-up (16.5 vs 15.2 tokens per second).</p>
+      <p>In short: Neural reads long prompts about 3&times; faster. It writes follow-up answers 1.24&times; faster and rewrites files slightly faster (1.06&times;). The first answer right after a long prompt is about level: 1.03&times; on the median, with individual runs from 0.93&times; to 1.18&times;. The model only just fits in 64&nbsp;GB of RAM next to other programs, so that answer still has to pull some experts from disk.</p>
       <div class="tiles">
-        <div class="tile"><b>15&ndash;16</b><span>tokens per second when writing code</span></div>
+        <div class="tile"><b>13&ndash;19</b><span>tokens per second when writing code</span></div>
         <div class="tile"><b>0.4&ndash;0.6&nbsp;s</b><span>per step inside an agent's tool loop, before it starts answering</span></div>
         <div class="tile"><b>99%</b><span>of the conversation reused when the editor sends a side request</span></div>
       </div>
@@ -404,7 +405,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <h3>Good to know</h3>
           <ul>
             <li>One conversation at a time: it is a personal server, not a shared one.</li>
-            <li>Code arrives at 15&ndash;16 tokens per second. That is comfortable to read along with, but slower than cloud services.</li>
+            <li>Code arrives at 13&ndash;19 tokens per second. That is comfortable to read along with, but slower than cloud services.</li>
             <li>Startup takes about 2 minutes.</li>
             <li>Speed depends on free RAM, so close memory-hungry apps first.</li>
           </ul>
@@ -442,7 +443,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_prepacked
         <details><summary>Is this the full model, or a cut-down version?</summary><p>It is the full gpt-oss-120B. OpenAI's published 4-bit expert weights are copied byte for byte into Neural's store. Nothing is re-quantized or pruned.</p></details>
         <details><summary>Does splitting the work change the answers?</summary><p>The math is the same model. Neural's fast graphics-card code adds numbers in a slightly different order than the reference code, as GPU code generally does. Output quality was tested statistically, and the difference stays inside the spread the reference code itself shows when only its rounding order changes.</p></details>
         <details><summary>Why does RAM matter so much?</summary><p>Every expert the CPU computes has to be read from RAM. Each token needs about 1.9&nbsp;GB of expert weights in total, split between the graphics card and RAM. For code, the limit is how fast RAM can be read.</p></details>
-        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is excellent and runs almost anywhere. On this PC, Neural read a 13,000-token coding prompt 3&times; faster and wrote its first answer about 1.5&times; faster. A research build answered short prompts up to 1.5&times; faster. Once a long conversation was warm, llama.cpp was slightly faster on the follow-up (16.5 vs 15.2 tokens per second). Neural also adds features for coding agents: it replays its own tool calls exactly, so each step only reads the new result; it keeps the conversation cached when the editor sends side requests; and it prepares the next turn while you read.</p></details>
+        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is excellent and runs almost anywhere. On this PC, Neural reads long prompts about 3&times; faster than llama.cpp. In a long coding conversation its follow-up answers were 1.24&times; faster, and its first answer after the long prompt was about level (1.03&times;). A research build answered short prompts up to 1.5&times; faster. Neural also adds features for coding agents: it replays its own tool calls exactly, so each step only reads the new result; it keeps the conversation cached when the editor sends side requests; and it prepares the next turn while you read.</p></details>
         <details><summary>Can I run it on a Mac or on Linux?</summary><p>Not today. The server is built and tested on Windows with an NVIDIA card. The ideas carry over, but the code does not yet.</p></details>
         <details><summary>Where did this come from?</summary><p>Neural began as a research project on running very large mixture-of-experts models on consumer hardware. It kept a detailed lab notebook, including the ideas that failed. This server is what came out of it.</p></details>
       </div>
