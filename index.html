@@ -278,6 +278,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <a href="#results">Results</a>
       <a href="#coding">For coding</a>
       <a href="#start">Get started</a>
+      <a href="technical.html">Technical</a>
+      <a href="overview.html">For decision makers</a>
     </nav>
   </div>
 </header>
@@ -421,6 +423,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       </div>
       <details class="ctable"><summary>All numbers as a table</summary><div id="ctable"></div></details>
       <p id="inshort">In short: by the fourth measurement on Sep 30 Neural read a 13,000-token prompt 13.9&times; faster than llama.cpp (6.8 s against 95.2 s), wrote follow-up answers 1.57&times; faster (1.11&times; on Sep 23, then 1.24, 1.34, 1.38, 1.54 and 1.54&times; through the day), and its first answer after the long prompt was 1.96&times; faster on the median, with individual runs from 1.84&times; to 2.08&times; (llama.cpp's own first answers ran slower this round, 10.9 to 12.8 tok/s against 13.3 to 13.6 earlier in the day, so the follow-up figure is the steadier one). The fourth step does the prompt maths in 64-row tiles instead of 16 (the graphics card was wasting three quarters of each tile) and prepares expert copies on a second thread, both bit-identical, and copies half as many experts into the card per answer at the same hit rate, which changes which experts the card keeps, so answers can differ from the previous version's the way they already differ between runs; earlier steps were layer-order prompt reading, a CPU kernel that reads RAM at the memory's ceiling, and a smaller expert store, all bit-identical. The file-rewrite figure stands at 1.42&times; from the first Sep 30 measurement: later attempts were not clean, because a rewrite starts on experts that other programs had pushed out of the PC's file cache, and reading them back from disk dominated its first tokens on every version tried. On Sep 24 the prompt figure was 3.1&times;, but the unchanged Sep 24 build also measured 6.5&times; on Sep 29, so the versions before Sep 30 (3) are not what made prompts faster then; why the PC got faster that week is not established. The model only just fits in 64&nbsp;GB of RAM next to other programs, so the first answer still has to pull some experts from disk.</p>
+        <p class="caption" id="readmore">Two write-ups of this work: the <a href="technical.html">technical documentation</a> (architecture, every change with its number and verdict, method, the llama.cpp comparison) and a <a href="overview.html">version for decision makers</a>.</p>
       <div class="tiles">
         <div class="tile"><b>23&ndash;25</b><span>tokens per second when writing code (latest Sep&nbsp;30 version)</span></div>
         <div class="tile"><b>0.4&ndash;0.6&nbsp;s</b><span>per step inside an agent's tool loop, before it starts answering</span></div>
