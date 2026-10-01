@@ -305,13 +305,13 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <p class="tag">For decision makers</p>
     <h1 id="doc-title">A 120-billion-parameter AI model, running privately on one ordinary PC, faster than the standard tool.</h1>
     <p class="lede">What was achieved, how, how it differs from llama.cpp, and how we know the numbers are right. No prior knowledge assumed.</p>
-    <p class="meta"><span>Neural Server &middot; September 30, 2026</span><a href="index.html">Back to the main page</a><a href="technical.html">The technical documentation</a></p>
+    <p class="meta"><span>Neural Server &middot; October 1, 2026 &middot; v10 selected profile</span><a href="index.html">Back to the main page</a><a href="technical.html">The technical documentation</a></p>
   </section>
 <section class="wrap sec" id="summary">
 <p class="tag">Summary</p>
     <div class="sec-body">
 <h2>The one-paragraph version</h2>
-<p>Neural runs OpenAI's gpt-oss-120B, a very large AI model with about 117 billion adjustable settings (called parameters), on one gaming PC with a 12 GiB graphics card and 64 GB of RAM (the computer's main working memory). It runs entirely on this PC and needs no account or subscription. AI models read and write in small pieces called tokens (a token is roughly three quarters of a word). On the latest measurement, both programs were already warm. Neural is ready to answer after a 13,000-token coding prompt in 6.8 seconds, where llama.cpp takes 95.2 seconds. That is about 14 times quicker (13.9&times;, one run each). When you ask a further question in the same conversation, Neural writes its answer at 24.13 tokens per second against llama.cpp's 15.33, about 57% faster (1.57&times;). llama.cpp (build b10361) is a widely used open-source program for running AI models locally, and it is the comparison point here. The comparison uses the same PC, the same model file and the same questions, on the same afternoon, with the two programs taking turns.</p>
+<p>Neural runs OpenAI's gpt-oss-120B, a very large AI model with about 117 billion adjustable settings (called parameters), on one gaming PC with a 12 GiB graphics card and 64 GB of RAM (the computer's main working memory). It runs on this PC with no account or subscription. In a fresh October 1 comparison using four identical API requests in alternating order, Neural generated answers at a weighted 24.69 tokens per second; llama.cpp reached 14.32. Neural's measured rate was 1.72 times higher in this engine comparison. A separate, matched Neural software change improved decode speed by 1.74% with normal adaptive placement; a frozen-placement control measured 2.89% but is not a recommended setting. The comparison used the existing model files and did not change their precision.</p>
     </div>
   </section>
 
@@ -319,8 +319,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <p class="tag">Results</p>
     <div class="sec-body">
 <h2>What was achieved</h2>
-<p>Every figure on this page was measured on the same PC on the same afternoon, with the two programs taking turns, unless it is described as a calculation.</p>
-<p>Three rows come from the fourth measurement on Sep 30 (latest build). The rewrite row comes from the first measurement that day (an earlier build, equal-length span); it was not re-measured cleanly. Speed is counted in tokens per second.</p>
+<p>The October 1 figures below use fresh Neural and llama.cpp sessions in Neural / llama.cpp / llama.cpp / Neural order, with the same four API request bodies, four answers capped at 512 tokens per session, and two sessions per engine. They are the latest comparison. The September 30 figures farther down are retained as historical measurements; they are not the current headline.</p>
+<p>For these exact requests, Neural's weighted generated-answer rate was 24.6910 tokens per second; llama.cpp's was 14.3189. The first-answer rates were 23.6047 and 13.0566; follow-up rates were 25.0756 and 14.7957. The first request's client wall time was 30.38 seconds for Neural and 176.82 for llama.cpp; on follow-ups it was 22.835 and 39.405 seconds. First prompt-processing medians were 8.66645 and 137.552015 seconds (15.87 times faster for Neural in this fresh-session test). That is not the separate warm-prompt study. Prompt settings were chosen for answer speed, not tuned separately for llama.cpp prompt reading.</p>
+<p>Speed is counted in tokens per second, but the programs count slightly differently: Neural times 511 tokens of a 512-token answer, while llama.cpp reports 512. Their weighted rates use each program's reported count. Same API bodies and answer lengths do not prove that the two backends rendered identical internal prompt tokens.</p>
+<p>The new CPU worker change improved Neural's measured weighted decode rate by 1.74% with normal adaptive placement; all corresponding answer token IDs matched in the two-session CPU-only comparison. A frozen-placement control measured 2.885%, with matching outputs, but freezing placement made the server slower overall and is not recommended. The v10 launcher uses this CPU worker with prompt grouping limited to 1,024–4,096 new tokens and releases unused graphics-memory cache after prompt processing. In a separate first-pass study, that profile lowered warm processing time for a 3,000-token file prompt by 7.03% (3.69655 to 3.43665 seconds) and released about 1.11 GiB of graphics-memory reservation after a long prompt. That is allocator space returned to the system, not a smaller model. These are separate measurements, not extra gains in the engine comparison above.</p>
+<p>Earlier September 30 measurements (kept for context, not current results):</p>
 <div class="tblwrap"><table class="doc">
 <thead><tr><th>Activity</th><th>Neural</th><th>llama.cpp</th><th>Ratio</th></tr></thead>
 <tbody>
@@ -330,8 +333,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <tr><td>Rewriting a file just read</td><td>20.71 tokens per second</td><td>14.57 tokens per second</td><td>1.42&times;</td></tr>
 </tbody>
 </table></div>
-<p>The first-answer advantage ranged from 1.84 to 2.08 times across runs, and llama.cpp was slower than usual in that round. Read 1.57 times for follow-ups as the more dependable figure.</p>
-<p>We made the comparison as fair as we could: same PC, same model weights for the experts, alternating runs, and each run started the program from scratch so no earlier work was left in memory. First answers depend on run order and on what the PC's file cache held, and each program's own timer is used. Where a change is marked &ldquo;identical&rdquo;, the new version gives exactly the same answer, character for character, as the old one. A few changes are not identical; see the Trust section.</p>
+<p>The September 30 first-answer advantage ranged from 1.84 to 2.08 times across runs, and llama.cpp was slower than usual in that round. That older run's 1.57 times follow-up result is superseded by the October 1 comparison above.</p>
+<p>Both October 1 Neural sessions produced matching prompt and generated-token IDs for all four answers. The comparison used the same PC, alternating fresh sessions, and the same request bodies. First requests still depend on run order and on what the PC's file cache held, and each program's own timer is used. See the Trust section for the scope of the output checks.</p>
     </div>
   </section>
 
@@ -350,9 +353,9 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="sec-body">
 <h2>Send the work to the data, not the data to the work</h2>
 <p>The model is built from many small specialist networks, called &ldquo;experts&rdquo;. Picture a hospital with 36 floors (the model's &ldquo;layers&rdquo;) and 128 specialists on each floor. Each token, roughly three quarters of a word, is handled by only 4 per floor. That makes 4,608 specialists in total and 144 used per token, about 3% (a calculation).</p>
-<p>The busiest specialists sit in the graphics card's own memory: about 500 of them on the current version, a configuration choice. That is roughly 1 in 10 of the 4,608 (a calculation). The rest stay in the PC's main memory (RAM). The PC's main chip (the processor) uses its eight cores to consult them there, while the card handles its own share at the same time.</p>
-<p>The alternative is to copy each missing specialist to the card, about 13 megabytes each time, roughly a large photo. Instead, for each layer, the per-token messages between card and processor are about 23 kilobytes, and the processor does the work where the data sits. A few popular experts are still copied to the card in the background, and long prompts stage experts too. The processor reads RAM at about 36 GB per second on the latest build (Sep 30), against a measured memory ceiling of about 38 to 40 GB per second.</p>
-<p>For long inputs, Neural works through the model one floor at a time, so each specialist not on the card is fetched once per floor instead of once per block of the prompt. That cut the 13,000-token prompt from 15.0 to 10.7 seconds. Making the card work on 64 rows of the prompt at a time instead of 16 then took it to 7.7 seconds in like-for-like runs, and 6.8 seconds in the published comparison. Both changes leave the prompt's result identical bit for bit.</p>
+<p>The busiest specialists sit in the graphics card's own memory: about 500 of them on the current selected profile, a configuration choice. That is roughly 1 in 10 of the 4,608 (a calculation). The rest stay in the PC's main memory (RAM). The PC's main chip (the processor) uses its eight cores to consult them there, while the card handles its own share at the same time.</p>
+<p>The alternative is to copy each missing specialist to the card, about 13 megabytes each time, roughly a large photo. Instead, for each layer, the per-token messages between card and processor are about 23 kilobytes, and the processor does the work where the data sits. A few popular experts are still copied to the card in the background, and long prompts stage experts too. The processor reads RAM at about 36 GB per second on the September 30 build, against a measured memory ceiling of about 38 to 40 GB per second.</p>
+<p>For long inputs, Neural works through the model one floor at a time, so each specialist not on the card is fetched once per floor instead of once per block of the prompt. Earlier changes cut a 13,000-token prompt from 15.0 to 10.7 seconds, then to 7.7 seconds in like-for-like runs; the published September comparison recorded 6.8 seconds. The current selected profile adds bounded prompt grouping only for 1,024 to 4,096 new tokens and releases unused graphics-memory cache after prompt processing. Grouping is off for longer prompts. These prompt changes preserve the prompt result bit for bit.</p>
     </div>
   </section>
 
@@ -360,8 +363,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <p class="tag">Versus llama.cpp</p>
     <div class="sec-body">
 <h2>How Neural differs from llama.cpp</h2>
-<p>llama.cpp is mature and runs on many kinds of computers, which Neural does not (see Limits). For llama.cpp we used the setting tuned for decode speed on this PC (-ncmoe 31, the specialists of 31 of the 36 layers kept in RAM), and it computes them there on the processor. That setting was not tuned for prompt reading. Neural does the same, but it decides for each individual specialist, not for whole layers. It also keeps the ones used most recently on the card, so the choice follows the current conversation.</p>
-<p>The gain differs by activity. Prompt reading gains most: llama.cpp with this setting takes 93 to 102 seconds for the same prompt. We did not profile llama.cpp's prompt path; its setting was chosen for answer speed and we did not try a prompt-tuned one, so the prompt ratio is the least conservative of the four. Answers gain less, because both are limited by how fast RAM can be read.</p>
+<p>llama.cpp is mature and runs on many kinds of computers, which Neural does not (see Limits). The October comparison used llama.cpp build 10361 (revision 14e78ddef) with -ngl 99 -ncmoe 31 -t 8 -c 16384 -fa on --jinja, a setting tuned for decode speed on this PC (-ncmoe 31 keeps the specialists of 31 of the 36 layers in RAM), and it computes them there on the processor. That setting was not tuned for prompt reading. Neural does the same, but it decides for each individual specialist, not for whole layers. It also keeps the ones used most recently on the card, so the choice follows the current conversation.</p>
+<p>The gain differs by activity. In September's warm-prompt measurements, llama.cpp took 93 to 102 seconds for the same prompt. The October 1 fresh-session median was 137.55 seconds versus Neural's 8.67; this uses a different method. We did not profile llama.cpp's prompt path or try a prompt-tuned setting, so the prompt ratio needs particular care. Answers gain less, because both are limited by how fast RAM can be read.</p>
 <p>In August our research version lost to llama.cpp, at 13.65 against 13.90 tokens per second. That version copied 1.84 times less data than llama.cpp, but it copied it over the connection between the PC and the graphics card, which is slow. llama.cpp avoided that trip by computing the data where it already sat. The design then changed to a hybrid: for every token, the processor computes the experts held in RAM while the card computes the resident ones. Three research steps took that hybrid from 0.82 times llama.cpp to about 1.5 times on short prompts, and the server versions started from there.</p>
     </div>
   </section>
@@ -371,11 +374,12 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <div class="sec-body">
 <h2>How we checked it</h2>
 <ul>
-<li>Most speed-ups leave every answer exactly unchanged.</li>
+<li>The October 1 CPU-only and frozen-placement comparisons matched every corresponding answer token ID. The final selected Neural repeats also matched. One earlier combined-profile run differed in the last two outputs of one session, so its strict all-answer identity check failed.</li>
 <li>A few changes are not bit-identical: the larger expert pool from the rolling K/V cache, the halved admission rate, and the fused core's different summation order. Answers can therefore differ from earlier versions, as this server's answers already can between two runs, because which specialists sit on the card depends on timing.</li>
 <li>Neural uses OpenAI's published 4-bit (MXFP4) expert weights with the same values (the packed store re-encodes only the scale bytes, losslessly), and nothing is re-quantized or pruned.</li>
-<li>The fused graphics-card code was tested statistically and stays inside the spread the reference code shows when only its summation order changes (4 sigma, 3 nulls). The later admission changes were not separately quality-tested.</li>
-<li>Every ratio was measured against llama.cpp on the same day, on the same PC.</li>
+<li>New checks covered 432 native-kernel cases and 192 full-model decode steps per implementation across three prompt sizes; the tested logits, hidden states, and K/V cache matched. The selected repository test run passed 103 tests. These checks cover the named cases and settings; they are not proof of universal answer equivalence.</li>
+<li>The fresh engine comparison used the same API request bodies, but llama.cpp does not expose its internal prompt-token IDs in this test. We make no claim that different model backends are quality-equivalent.</li>
+<li>Ratios are tied to the specific machine, settings, workload and date stated beside them.</li>
 <li>Where a measurement was not clean, the row says &ldquo;not measured&rdquo; instead of showing a number.</li>
 <li>Failed experiments are kept on record, and reviews corrected our own earlier claims.</li>
 </ul>
@@ -392,7 +396,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <li>It can hold 16,384 tokens (roughly 12,000 words, calculated at 0.75 word per token) of conversation at once, and it takes about 2 minutes to start.</li>
 <li>The expert store (about 55&ndash;57 GiB) only just fits in 64 GB next to other programs; the first answer touches some experts for the first time and can also hit disk stalls when free RAM is low (about 55 GiB free is recommended). First-answer speed therefore varies more than follow-ups.</li>
 <li>The advantage was measured only with the expert store held in RAM. In an earlier research build under RAM pressure, Neural fell to 0.31&times; llama.cpp (un-replicated). On Sep 5 an earlier build was 2.92&times; slower than llama.cpp on fresh prompts under background load.</li>
-<li>Prompt-reading speed on this PC also drifted between days on an unchanged build in September, for reasons not established; the Sep 30 gains are code changes verified against the previous build on the same day.</li>
+<li>Prompt-reading speed on this PC also drifted between days on an unchanged build in September, for reasons not established. October's prompt measurements are a separate experiment and do not remove that uncertainty.</li>
 <li>It is a personal server, not a product, and the code is private.</li>
 </ul>
     </div>
@@ -405,9 +409,9 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <ol class="steps">
 <li>In August the research said no: it reached 0.98 times llama.cpp's speed, and the best it could theoretically reach was 1.17 times (a calculation). The project's own minimum worth building was 1.20 times.</li>
 <li>The design changed to a hybrid: for every token, the processor computes the experts held in RAM while the card computes the resident ones.</li>
-<li>Over Sep 29 and 30, six passes of measured changes. Each was kept only if it measured faster in like-for-like runs and, where this page says so, gave identical output.</li>
-<li>Follow-up answers rose from 1.11&times; llama.cpp on Sep 23 to 1.57&times;.</li>
-<li>Prompt reading went from 3.1 times llama.cpp on Sep 24 to 13.9 times on Sep 30; the Sep 30 steps are verified code gains.</li>
+<li>Over Sep 29 and 30, six passes of measured changes improved prompt processing; those values remain historical.</li>
+<li>On Oct 1, a matched fresh-session comparison measured 1.72 times llama.cpp's weighted answer rate, and a separate CPU software change measured a 1.74% decode gain with normal adaptive placement.</li>
+<li>Prompt and decode speed are different measurements. The new prompt grouping helps selected 1k–4k prompts; longer prompts and first-answer speed remain open areas for measurement.</li>
 </ol>
     </div>
   </section>
@@ -416,7 +420,8 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <p class="tag">Next</p>
     <div class="sec-body">
 <h2>What would move it further</h2>
-<p>For prompt reading, the processor side and the graphics-card side now take the same time, about 7.2 seconds for the 13,000-token prompt, so no further change on one side alone helps. For answers, the processor already reads RAM within a few percent of what the memory can physically deliver, and the remaining housekeeping is about 6 thousandths of a second per token; three attempts to hide it gave nothing usable. The software is at its measured balance point. What would move it further is the PC itself: faster memory, or a graphics card with more memory so that more specialists stay on it (each extra percent of specialists on the card is worth about 0.7 thousandths of a second per token, measured). This page makes no purchase recommendation.</p>
+<p>The October 1 CPU result shows that software still had measurable room: a persistent worker team reduced some per-token overhead and improved decode by 1.74% in the normal adaptive comparison. More software opportunities remain, but they are hypotheses until tested in serving workloads. The selected prompt profile helps 1,024–4,096-token inputs; longer prompts did not benefit from grouping. Faster memory or a graphics card with more memory may also help, but no hardware purchase is needed for the software gains reported here and this page makes no purchase recommendation.</p>
+<p>For the full measurements, see the <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_DECODE_FOLLOWUP_2026-10-01.md">October 1 decode follow-up</a>, the <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_OPTIMIZATION_REVIEW_2026-10-01.md">optimization review</a>, the <a href="https://github.com/x3r081/NeuralServer/tree/main/benchmarks/codex_decode_followup_20261001">decode evidence and reports</a>, and the <a href="https://github.com/x3r081/NeuralServer/blob/main/start_neural_optimized.bat">selected-profile launcher</a>.</p>
     </div>
   </section>
 </main>
@@ -424,6 +429,6 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <footer>
   <div class="wrap">
     <span>Neural Server &middot; gpt-oss-120B by OpenAI (Apache&nbsp;2.0)</span>
-    <span>Speed figures measured on the development PC, September 2026. Sizes come from the model's design. Text written September 30, 2026 from the measurement records.</span>
+    <span>Speed figures measured on the development PC, September 2026 and October 1, 2026. Sizes come from the model's design. Text updated October 1, 2026 from the measurement records.</span>
   </div>
 </footer>

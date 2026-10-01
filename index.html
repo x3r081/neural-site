@@ -205,7 +205,7 @@ p { margin: 0; max-width: 64ch; }
 .ctable summary { cursor: pointer; font-size: 14.5px; color: var(--ink-2); }
 .fine code { font: 12.5px var(--mono); color: var(--ink-2); }
 .sec-body > p code { font: 0.88em var(--mono); }
-#ctable { overflow-x: auto; }   /* five version columns: the table scrolls in its box on a phone, not the page */
+#ctable { overflow-x: auto; }   /* version columns scroll in their box on a phone, not the page */
 .ctable table { margin-top: 10px; }
 .ctable td { font-size: 13px; }
 @media (max-width: 860px) { .tgrid { grid-template-columns: minmax(0, 1fr); } }
@@ -292,7 +292,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <dl class="facts">
       <div><dt>117B</dt><dd>parameters in the model</dd></div>
       <div><dt>12&nbsp;GB</dt><dd>graphics card (RTX 3080&nbsp;Ti)</dd></div>
-      <div><dt>3&ndash;7&times;</dt><dd>faster than llama.cpp at reading a 13,000-token coding prompt</dd></div>
+      <div><dt>1.72&times;</dt><dd>llama.cpp's decode speed on the latest matched coding workload</dd></div>
       <div><dt>0</dt><dd>bytes sent to the cloud</dd></div>
     </dl>
 
@@ -357,14 +357,14 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <div class="split">
         <div class="place gpu">
           <h3>Graphics card</h3>
-          <p>Holds the parts every token needs (attention and the router) plus the <span class="gpu-t">~480 most-used experts</span>. It is very fast, but only about 1 expert in 10 fits.</p>
+          <p>Holds the parts every token needs (attention and the router) plus the <span class="gpu-t">~500 most-used experts</span>. It is very fast, but only about 1 expert in 10 fits.</p>
           <p class="spec">12 GB &middot; 36 layers as CUDA graphs</p>
         </div>
         <div class="link"><div><b>~23 KB</b>of messages per layer, instead of 13&nbsp;MB per missing expert</div></div>
         <div class="place cpu">
           <h3>Processor + RAM</h3>
           <p>All the other experts wait in RAM. When a token needs one, <span class="cpu-t">8 CPU cores compute it right there</span>, while the graphics card works on its own share at the same moment.</p>
-          <p class="spec">64 GB &middot; AVX-512 &middot; 21&ndash;30 GB/s</p>
+          <p class="spec">64 GB &middot; AVX-512 &middot; persistent CPU workers</p>
         </div>
       </div>
       <p>The usual way to split a model like this is by layer: some layers live on the card, and the CPU handles the experts of the rest. Neural splits it by expert instead. In every layer, the most-used experts sit on the card and the rest stay in RAM, and both sides work on each token at the same time. The other option, copying experts to the card as they are needed, is slow, because every missing expert is 13&nbsp;MB. Neural moves the <em>work</em> to the data instead of the data to the work.</p>
@@ -382,7 +382,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <li class="c">At the same moment, the CPU computes the others straight from RAM.</li>
         <li>The results are added up and passed on. After all 36 layers, the next token appears.</li>
       </ol>
-      <p>That whole loop runs 14 to 21 times a second when writing code, and faster for everyday text.</p>
+      <p>That whole loop averaged 24.69 tokens a second on the latest coding workload, including the first answer and three follow-ups in each session.</p>
     </div>
   </section>
 
@@ -390,9 +390,11 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <p class="tag">Results</p>
     <div class="sec-body">
       <h2 id="res">Measured, not promised.</h2>
-      <p>Same PC, same model, in alternating runs against llama.cpp, the most widely used local AI runner, run with <code>-ncmoe 31</code>, the fastest offload setting we found for this model. The top two rows come from a research build of the same engine, timed on short prompts with a short context, which leaves more room on the graphics card for experts. The other four come from the server, with a fresh server for every run: reading a long prompt after a discarded warm-up prompt, one long coding conversation (a 13,000-token code context, then follow-up questions), and one file rewrite compared over the same length of answer. Pick a date to see that version, with the previous one marked, or see how each result has moved over time.</p>
+      <p>Same PC and existing gpt-oss-120B model, with fresh server processes taking turns against the installed llama.cpp b10361, using its decode-tuned <code>-ngl 99 -ncmoe 31 -t 8 -c 16384 -fa on --jinja</code> settings. October 1 uses the exact same saved API requests for both engines: a 13,000-token code context and four answers capped at 512 tokens, in Neural / llama / llama / Neural order. Decode rates are total timed tokens divided by total decode time, with two sessions per engine.</p>
+      <p>The older dates keep their original methods and results. Their answer rates are medians, while October 1 uses weighted rates and fixed request replay. The prompt row is a warmed-up measurement through September 30 and a fresh-session measurement on October 1. The chart does not join those method changes as a continuous code improvement. The first two rows are historical short-context research results; the rewrite was not re-measured on October 1.</p>
       <div class="vtabs" role="tablist" aria-label="Results by server version">
-        <button type="button" role="tab" id="tab-v9" aria-controls="chart" aria-selected="true" data-view="v9">Sep 30 (4) <span>latest</span></button>
+        <button type="button" role="tab" id="tab-v10" aria-controls="chart" aria-selected="true" data-view="v10">Oct 1 <span>latest</span></button>
+        <button type="button" role="tab" id="tab-v9" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v9">Sep 30 (4) <span>v9</span></button>
         <button type="button" role="tab" id="tab-v8" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v8">Sep 30 (3) <span>v8</span></button>
         <button type="button" role="tab" id="tab-v7" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v7">Sep 30 (2) <span>v7</span></button>
         <button type="button" role="tab" id="tab-v6" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v6">Sep 30 (1) <span>v6</span></button>
@@ -401,14 +403,12 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <button type="button" role="tab" id="tab-v3" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v3">Sep 23 <span>first server</span></button>
         <button type="button" role="tab" id="tab-time" aria-controls="timechart" aria-selected="false" tabindex="-1" data-view="time">Over time</button>
       </div>
-      <div class="chart" id="chart" role="tabpanel" aria-labelledby="tab-v9">
-        <div id="bars" role="group" aria-label="Speed relative to llama.cpp on Sep 30 (fourth measurement). Research build: short everyday prompts 1.46 to 1.56 times, short code prompt 1.12 to 1.19 times. Server: reading a 13,000-token prompt 13.9 times; in a 13,000-token coding conversation, first answer 1.96 times, follow-up answers 1.57 times; rewriting a file just read 1.42 (first Sep 30 measurement; not re-measured cleanly) times.">
-          <div class="crow"><div class="lbl">Short everyday prompts<br><span class="caption">research build, Sep 23</span></div><div class="ctrack" data-lo="1.46" data-hi="1.56" data-label="1.46&ndash;1.56&times;"></div></div>
-          <div class="crow"><div class="lbl">Short code prompt<br><span class="caption">research build, Sep 23</span></div><div class="ctrack" data-lo="1.12" data-hi="1.19" data-label="1.12&ndash;1.19&times;"></div></div>
-          <div class="crow"><div class="lbl">Reading a 13,000-token code prompt<br><span class="caption">server, both warmed up</span></div><div class="ctrack" data-lo="13.9" data-hi="13.9" data-label="13.9&times;"></div></div>
-          <div class="crow"><div class="lbl">First answer after a long prompt<br><span class="caption">server, medians of 3 runs</span></div><div class="ctrack" data-lo="1.96" data-hi="1.96" data-label="1.96&times;"></div></div>
-          <div class="crow"><div class="lbl">Follow-up answers<br><span class="caption">server</span></div><div class="ctrack" data-lo="1.57" data-hi="1.57" data-label="1.57&times;"></div></div>
-          <div class="crow"><div class="lbl">Rewriting a file just read<br><span class="caption">server, same stretch of answer</span></div><div class="ctrack" data-lo="1.42" data-hi="1.42" data-label="1.42&times;"></div></div>
+      <div class="chart" id="chart" role="tabpanel" aria-labelledby="tab-v10">
+        <div id="bars" role="group" aria-label="October 1: Neural versus llama.cpp. Weighted decode: all answers 1.72 times, first answers 1.81 times, follow-ups 1.69 times. Fresh-session prompt processing 15.87 times; not comparable to earlier warm-prompt measurements.">
+          <div class="crow"><div class="lbl">All answers, weighted decode<br><span class="caption">Oct 1, two sessions per engine</span></div><div class="ctrack" data-lo="1.7244" data-hi="1.7244" data-label="1.72&times;"></div></div>
+          <div class="crow"><div class="lbl">First answer after a long prompt</div><div class="ctrack" data-lo="1.8079" data-hi="1.8079" data-label="1.81&times;"></div></div>
+          <div class="crow"><div class="lbl">Follow-up answers</div><div class="ctrack" data-lo="1.6948" data-hi="1.6948" data-label="1.69&times;"></div></div>
+          <div class="crow"><div class="lbl">Reading a 13,000-token code prompt<br><span class="caption">fresh session; median of two runs</span></div><div class="ctrack" data-lo="15.8718" data-hi="15.8718" data-label="15.9&times;"></div></div>
         </div>
         <div class="ticks"><div></div><div class="scale" id="scale"></div></div>
         <div class="chart-key" id="barkey"><span><i class="sw cpu"></i>&nbsp;Neural, up to llama.cpp's speed (the line at 1&times;)</span><span><i class="sw gpu"></i>&nbsp;faster than llama.cpp (faded: spread across runs and settings)</span></div>
@@ -416,20 +416,23 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="tip" id="tip" role="status" hidden></div>
       </div>
       <div class="chart" id="timechart" role="tabpanel" aria-labelledby="tab-time" hidden>
-        <p class="fine">Each panel is Neural's speed divided by llama.cpp's, from the same set of alternating runs (the hollow point pairs the Sep&nbsp;24 build's re-run with that night's llama.cpp run). The vertical whiskers show the run-to-run range. Above the solid line at 1&times; is faster than llama.cpp. The three answer-writing panels share one scale; prompt reading has its own.</p>
+        <p class="fine">Each panel is Neural's speed divided by llama.cpp's, from the same set of alternating runs (the hollow point pairs the Sep&nbsp;24 build's re-run with that night's llama.cpp run). The vertical whiskers show the run-to-run range. Above the solid line at 1&times; is faster than llama.cpp. The answer-writing panels share one scale; prompt reading has its own. October 1 uses weighted replay measurements instead of the older medians, and its prompt run starts a fresh session. These points are shown separately at the method change.</p>
         <div class="tgrid" id="tgrid"></div>
         <div class="chart-key"><span><i class="sw gpu"></i>&nbsp;faster than llama.cpp</span><span><i class="sw cpu"></i>&nbsp;up to llama.cpp's speed</span><span><i class="was-key"></i>&nbsp;the unchanged Sep 24 build, measured again on Sep 29</span></div>
         <div class="tip" id="tip2" role="status" hidden></div>
       </div>
       <details class="ctable"><summary>All numbers as a table</summary><div id="ctable"></div></details>
-      <p id="inshort">In short: by the fourth measurement on Sep 30 Neural read a 13,000-token prompt 13.9&times; faster than llama.cpp (6.8 s against 95.2 s), wrote follow-up answers 1.57&times; faster (1.11&times; on Sep 23, then 1.24, 1.34, 1.38, 1.54 and 1.54&times; through the day), and its first answer after the long prompt was 1.96&times; faster on the median, with individual runs from 1.84&times; to 2.08&times; (llama.cpp's own first answers ran slower this round, 10.9 to 12.8 tok/s against 13.3 to 13.6 earlier in the day, so the follow-up figure is the steadier one). The fourth step does the prompt maths in 64-row tiles instead of 16 (the graphics card was wasting three quarters of each tile) and prepares expert copies on a second thread, both bit-identical, and copies half as many experts into the card per answer at the same hit rate, which changes which experts the card keeps, so answers can differ from the previous version's the way they already differ between runs; earlier steps were layer-order prompt reading, a CPU kernel that reads RAM at the memory's ceiling, and a smaller expert store, all bit-identical. The file-rewrite figure stands at 1.42&times; from the first Sep 30 measurement: later attempts were not clean, because a rewrite starts on experts that other programs had pushed out of the PC's file cache, and reading them back from disk dominated its first tokens on every version tried. On Sep 24 the prompt figure was 3.1&times;, but the unchanged Sep 24 build also measured 6.5&times; on Sep 29, so the versions before Sep 30 (3) are not what made prompts faster then; why the PC got faster that week is not established. The model only just fits in 64&nbsp;GB of RAM next to other programs, so the first answer still has to pull some experts from disk.</p>
+      <p id="inshort">On October 1, the selected profile averaged <strong>24.6910 tokens/s against llama.cpp's 14.3189</strong> across all answers: 1.72&times; on this workload. First answers were 23.6047 versus 13.0566 tokens/s; follow-ups were 25.0756 versus 14.7957. Prompt processing in these fresh sessions took a median 8.666 versus 137.552 seconds. That prompt comparison is separate from September 30's warmed-up result. The installed llama configuration favours decode; this was not an exhaustive search for its best prompt settings.</p>
+      <p>The new software improvement is smaller than the engine-to-engine ratio. Keeping the eight CPU workers alive between expert calls raised Neural's decode rate by <strong>1.74%</strong> in the normal adaptive comparison (23.8649 to 24.2807 tokens/s), and <strong>2.885%</strong> in a fixed-placement control (19.8659 to 20.4391). Freezing placement was slower overall and is a diagnostic control, not the recommended setting. All corresponding output tokens matched in those CPU-only comparisons. A separate prefill study reduced warm 3k prompt latency by <strong>7.03%</strong> (3.69655 to 3.43665 seconds); releasing unused CUDA cache saved about <strong>1.11 GiB</strong> after a long prompt. These gains apply to different phases and workloads; they are not percentages to add together.</p>
+      <p class="fine">No additional quantization or checkpoint change. Native checks passed 432 bitwise cases, full-model checks compared 192 decode steps exactly, and 103 selected repository tests passed. One adaptive combined-profile run differed on its final two answers, so its strict output-identity gate failed and remains in the evidence. Both Neural repeats in the final llama comparison matched each other. API-request equality does not establish identical internal prompt tokens or output quality across engines. Neural times 511 decoded tokens per 512-token answer; llama reports 512, and each timing convention is retained.</p>
+      <p class="caption">Sources: <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_DECODE_FOLLOWUP_2026-10-01.md">decode study and reproduction</a>, <a href="https://github.com/x3r081/NeuralServer/blob/main/benchmarks/codex_decode_followup_20261001/serving_verified.json">verified comparison</a>, and <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_OPTIMIZATION_REVIEW_2026-10-01.md">prefill/cache review</a>. All slow observations and failed experiments are retained. Source links require access to the private repository.</p>
         <p class="caption" id="readmore">Two write-ups of this work: the <a href="technical.html">technical documentation</a> (architecture, every change with its number and verdict, method, the llama.cpp comparison) and a <a href="overview.html">version for decision makers</a>.</p>
       <div class="tiles">
-        <div class="tile"><b>23&ndash;25</b><span>tokens per second when writing code (latest Sep&nbsp;30 version)</span></div>
-        <div class="tile"><b>0.4&ndash;0.6&nbsp;s</b><span>per step inside an agent's tool loop, before it starts answering</span></div>
-        <div class="tile"><b>99%</b><span>of the conversation reused when the editor sends a side request</span></div>
+        <div class="tile"><b>1.7&ndash;2.9%</b><span>new CPU decode gain in adaptive and fixed-placement controls</span></div>
+        <div class="tile"><b>7.03%</b><span>lower warm 3k prompt latency in the separate prefill study</span></div>
+        <div class="tile"><b>1.11&nbsp;GiB</b><span>less unused GPU allocator reservation after a long prompt</span></div>
       </div>
-      <p class="fine">Development PC: NVIDIA RTX 3080 Ti 12&nbsp;GB, Intel Core i7-11700K, 64&nbsp;GB DDR4-3000, NVMe SSD. A token is about three quarters of an English word. Code is slower than prose: it calls on experts from all over the model, so more of the work lands on RAM, and RAM speed becomes the limit: the CPU reads experts at 21&ndash;30&nbsp;GB/s here, of about 40&nbsp;GB/s the memory can deliver.</p>
+      <p class="fine">Development PC: NVIDIA RTX 3080 Ti 12&nbsp;GB, Intel Core i7-11700K, 64&nbsp;GB DDR4-3000, NVMe SSD. A token is about three quarters of an English word. Code is slower than prose: it calls on experts from all over the model, so more of the work lands on RAM, and RAM speed becomes the limit: expert reads remain the largest decode cost; the new worker scheduling reduces overhead without changing the weights or arithmetic precision.</p>
     </div>
   </section>
 
@@ -472,7 +475,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
           <h3>Good to know</h3>
           <ul>
             <li>One conversation at a time: it is a personal server, not a shared one.</li>
-            <li>Code arrives at 14&ndash;21 tokens per second. That is comfortable to read along with, but slower than cloud services.</li>
+            <li>The latest coding comparison averaged 24.69 tokens per second. Different prompts, memory pressure and background work can change that result.</li>
             <li>Startup takes about 2 minutes.</li>
             <li>Speed depends on free RAM, so close memory-hungry apps first.</li>
           </ul>
@@ -496,12 +499,13 @@ py -3.12 -m venv .venv
 set NEURAL_MODEL_DIR=D:\Models\gpt-oss-120b
 set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_prepacked
 .venv\Scripts\python tools\build_store.py</pre></div>
-      <p class="step-t">2b. Optional: pack the store (the Sep 30 numbers; same answers, less to read per token; needs another 55 GB of disk while both copies exist, then delete the first)</p>
+      <p class="step-t">2b. Optional: pack the store (used for the Sep 30 and Oct 1 measurements; lossless, less to read per token; needs another 55 GB of disk while both copies exist)</p>
       <div class="code"><button class="copy" type="button" data-for="c2b">Copy</button><pre id="c2b">.venv\Scripts\python tools\pack_store.py --dst D:\NeuralStores\gptoss120b_ps4 --verify
 set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
       <p class="step-t">3. Start the server, then connect your editor</p>
       <div class="code"><button class="copy" type="button" data-for="c3">Copy</button><pre id="c3">.\start_neural_server.bat</pre></div>
       <p>The editor settings are under <a href="#coding">For coding</a> above.</p>
+      <p>The October 1 profile adds <code>--kdll gptoss_cpu_persistent.dll --kernel-persistent 1 --grouped-prefill-gemm 1 --grouped-prefill-min-tokens 1024 --grouped-prefill-max-tokens 4096 --trim-prefill-cache 1 --masked-gemv 0</code> to that launch command. The <a href="https://github.com/x3r081/NeuralServer/blob/main/start_neural_optimized.bat">tested launcher</a> records the development PC's paths; adapt those paths for another installation. The persistent DLL is built for the tested Windows/AVX-512 host. The ordinary launcher and server defaults remain unchanged.</p>
     </div>
   </section>
 
@@ -513,7 +517,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
         <details><summary>Is this the full model, or a cut-down version?</summary><p>It is the full gpt-oss-120B. OpenAI's published 4-bit expert weights are copied byte for byte into Neural's store. Nothing is re-quantized or pruned.</p></details>
         <details><summary>Does splitting the work change the answers?</summary><p>The math is the same model. Neural's fast graphics-card code adds numbers in a slightly different order than the reference code, as GPU code generally does. Output quality was tested statistically, and the difference stays inside the spread the reference code itself shows when only its rounding order changes.</p></details>
         <details><summary>Why does RAM matter so much?</summary><p>Every expert the CPU computes has to be read from RAM. Each token needs about 1.9&nbsp;GB of expert weights in total, split between the graphics card and RAM. For code, the limit is how fast RAM can be read.</p></details>
-        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is excellent and runs almost anywhere. On this PC, Neural reads long prompts 3&ndash;7&times; faster than llama.cpp, depending on the day it was measured. In a long coding conversation its follow-up answers were 1.34&times; faster and its first answer after the long prompt 1.16&times; faster (Sep&nbsp;29). A research build answered short prompts 1.1&ndash;1.6&times; faster. Neural also adds features for coding agents: it replays its own tool calls exactly, so each step only reads the new result; it keeps the conversation cached when the editor sends side requests; and it prepares the next turn while you read.</p></details>
+        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is widely supported. On this PC, the October 1 matched coding workload measured 24.69 versus 14.32 tokens/s overall, or 1.72&times;, with this installed decode-tuned configuration. The new persistent CPU workers account for a separate 1.7&ndash;2.9% Neural improvement, not the whole engine advantage. Neural also preserves conversation state for coding tools. These measurements are specific to this host and workload; they do not establish a universal advantage.</p></details>
         <details><summary>Can I run it on a Mac or on Linux?</summary><p>Not today. The server is built and tested on Windows with an NVIDIA card. The ideas carry over, but the code does not yet.</p></details>
         <details><summary>Where did this come from?</summary><p>Neural began as a research project on running very large mixture-of-experts models on consumer hardware. It kept a detailed lab notebook, including the ideas that failed. This server is what came out of it.</p></details>
       </div>
@@ -524,7 +528,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
 <footer>
   <div class="wrap">
     <span>Neural Server &middot; gpt-oss-120B by OpenAI (Apache&nbsp;2.0)</span>
-    <span>Speed figures measured on the development PC, September 2026. Sizes come from the model's design.</span>
+    <span>Speed figures measured on the development PC, September&ndash;October 2026. Updated October 1, 2026. Sizes come from the model's design.</span>
   </div>
 </footer>
 
@@ -563,35 +567,41 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     { id: "v6", date: "Sep 30 (1)", name: "server v6", what: "packed expert store: each expert's scale rows stored in 4-bit form, 2.9% less to read per token, outputs bit-identical (an optional one-time conversion, tools/pack_store.py)" },
     { id: "v7", date: "Sep 30 (2)", name: "server v7", what: "CPU expert kernel: the eight threads now share the rows dynamically and meet at one spinning barrier instead of sleeping ones, so the kernel streams RAM at its ceiling; outputs bit-identical" },
     { id: "v8", date: "Sep 30 (3)", name: "server v8", what: "prompt processing in layer order: a long prompt runs each layer over all its 4,096-token blocks, so an expert that is not on the graphics card is copied there once per layer instead of once per block; outputs bit-identical" },
-    { id: "v9", date: "Sep 30 (4)", name: "latest", what: "prompt maths in 64-row tiles instead of 16 (the graphics card was wasting three quarters of each tile) and expert copies prepared on a second thread, both bit-identical; and half as many experts copied into the card per answer at the same hit rate, which changes which experts the card keeps, so answers can differ from v8's the way they already differ between runs" }
+    { id: "v9", date: "Sep 30 (4)", name: "server v9", what: "prompt maths in 64-row tiles instead of 16 (the graphics card was wasting three quarters of each tile) and expert copies prepared on a second thread, both bit-identical; and half as many experts copied into the card per answer at the same hit rate, which changes which experts the card keeps, so answers can differ from v8's the way they already differ between runs" },
+    { id: "v10", date: "Oct 1", name: "selected profile", what: "persistent CPU workers: +1.74% adaptive decode and +2.885% in a fixed-placement control; bounded grouped prefill: 7.03% lower warm 3k latency in a separate study; unused CUDA cache released after prefill. Same native precision. These are separate phase measurements, not gains to add together" }
   ];
   const ROWS = [
     { t: "Short everyday prompts", c: "research build, Sep 23", research: true, lo: 1.46, hi: 1.56, d: "Research build (Sep 23), 1k context, short prompts; range over 2-4 runs and two settings" },
     { t: "Short code prompt", c: "research build, Sep 23", research: true, lo: 1.12, hi: 1.19, d: "Research build (Sep 23), short code prompt; range over runs and two settings" },
-    { k: "prompt", t: "Reading a 13,000-token code prompt", c: "server, both warmed up", unit: "s", join: false, v: {
+    { k: "prompt", t: "Reading a 13,000-token code prompt", c: { v4: "server, both warmed up", v5: "server, both warmed up", v6: "server, both warmed up", v7: "server, both warmed up", v8: "server, both warmed up", v9: "server, both warmed up", v10: "fresh session, median of 2 runs; different method" }, unit: "s", join: false, v: {
       v4: { x: 3.1, n: 29.8, l: 93.2, d: "2 runs each" },
       v5: { x: 6.8, n: 14.8, l: 101.7, d: "1 run each", flag: "The unchanged Sep 24 build read the same prompt in 15.6 s that night (6.5\u00d7 against that night's llama.cpp run), so the new version is not what made prompts faster; why the PC got faster is not established." },
       v6: { x: 6.5, n: 14.3, l: 93.5, d: "1 run each; the packed store changes nothing in prompt reading" },
       v7: { x: 6.4, n: 14.7, l: 94.8, d: "1 run each; the kernel change is decode-only, prompt reading is unchanged" },
       v8: { x: 9.3, n: 10.7, l: 99.2, d: "1 run each; the same 13,000-token prompt in 10.7 s instead of 14.7 s, with the same result bit for bit" },
-      v9: { x: 13.9, n: 6.8, l: 95.2, d: "1 run each; the same 13,000-token prompt in 6.8 s, with the same result bit for bit" } },
+      v9: { x: 13.9, n: 6.8, l: 95.2, d: "1 run each; the same 13,000-token prompt in 6.8 s, with the same result bit for bit" },
+      v10: { x: 137.552015 / 8.66645, n: 8.66645, l: 137.552015, d: "Median first-request prompt time, 2 fresh sessions per engine; exact API request replay", flag: "Oct 1 is fresh-session prompt processing, not the earlier warm-prompt measurement. The installed llama configuration is decode-tuned; the ratio is not an isolated code-change gain." } },
       alt: { at: "v5", x: 6.5, n: 15.6, l: 101.7, d: "the unchanged Sep 24 build, re-run on Sep 29, against that night's llama.cpp run" } },
-    { k: "first", t: "First answer after a long prompt", c: { v3: "server, medians of 2 runs", v4: "server, medians of 3 runs", v5: "server, medians of 3 runs", v6: "server, medians of 3 runs", v7: "server, medians of 3 runs", v8: "server, medians of 3 runs", v9: "server, medians of 3 runs" }, unit: "tok/s", v: {
+    { k: "first", t: "First answer after a long prompt", c: { v3: "server, medians of 2 runs", v4: "server, medians of 3 runs", v5: "server, medians of 3 runs", v6: "server, medians of 3 runs", v7: "server, medians of 3 runs", v8: "server, medians of 3 runs", v9: "server, medians of 3 runs", v10: "weighted decode, 2 first answers per engine" }, unit: "tok/s", v: {
       v3: { x: 0.83, n: 10.88, l: 13.07, r: [0.67, 0.99], d: "2 runs: 0.67\u00d7 and 0.99\u00d7" },
       v4: { x: 1.03, n: 14.08, l: 13.70, r: [1.02, 1.04], d: "3 runs: 1.02-1.04\u00d7 run by run" },
       v5: { x: 1.16, n: 15.57, l: 13.46, r: [1.02, 1.27], d: "3 runs: 1.02-1.27\u00d7 run by run" },
       v6: { x: 1.36, n: 19.17, l: 14.06, r: [1.36, 1.37], d: "3 runs: 1.36-1.37\u00d7 run by run" },
       v7: { x: 1.49, n: 20.26, l: 13.62, r: [1.46, 1.5], d: "3 runs: 1.46-1.50\u00d7 run by run" },
       v8: { x: 1.64, n: 21.75, l: 13.25, r: [1.6, 1.66], d: "3 runs: 1.60-1.66\u00d7 run by run" },
-      v9: { x: 1.96, n: 22.74, l: 11.6, r: [1.84, 2.08], d: "3 runs: 1.84-2.08\u00d7 run by run; llama.cpp's first answers ran low this round (10.9-12.8 tok/s)" } } },
-    { k: "follow", t: "Follow-up answers", c: "server", unit: "tok/s", v: {
+      v9: { x: 1.96, n: 22.74, l: 11.6, r: [1.84, 2.08], d: "3 runs: 1.84-2.08\u00d7 run by run; llama.cpp's first answers ran low this round (10.9-12.8 tok/s)" },
+      v10: { x: 23.6047 / 13.0566, n: 23.6047, l: 13.0566, breakBefore: true, d: "Total timed tokens / total decode seconds; 2 first answers per engine, exact saved requests. Different method from the older medians." } } },
+    { k: "follow", t: "Follow-up answers", c: { v3: "server", v4: "server", v5: "server", v6: "server", v7: "server", v8: "server", v9: "server", v10: "weighted decode, 6 answers per engine" }, unit: "tok/s", v: {
       v3: { x: 1.11, n: 15.82, l: 14.21, r: [1.11, 1.12], d: "median of 6 answers; 2 runs: 1.11-1.12\u00d7" },
       v4: { x: 1.24, n: 18.07, l: 14.52, r: [1.24, 1.27], d: "median of 9 answers; 3 runs: 1.24-1.27\u00d7" },
       v5: { x: 1.34, n: 19.47, l: 14.58, r: [1.33, 1.35], d: "median of 9 answers (Neural 16.4-20.6 tok/s); 3 runs: 1.33-1.35\u00d7" },
       v6: { x: 1.38, n: 20.93, l: 15.15, r: [1.37, 1.39], d: "median of 9 answers (Neural 20.0-21.6 tok/s); 3 runs: 1.37-1.39\u00d7" },
       v7: { x: 1.54, n: 22.46, l: 14.55, r: [1.5, 1.55], d: "median of 9 answers (Neural 22.0-23.2 tok/s); 3 runs: 1.50-1.55\u00d7" },
       v8: { x: 1.54, n: 22.66, l: 14.73, r: [1.53, 1.55], d: "median of 9 answers (Neural 21.7-23.5 tok/s); 3 runs: 1.53-1.55\u00d7" },
-      v9: { x: 1.57, n: 24.13, l: 15.33, r: [1.56, 1.63], d: "median of 9 answers (Neural 23.4-25.2 tok/s); 3 runs: 1.56-1.63\u00d7" } } },
+      v9: { x: 1.57, n: 24.13, l: 15.33, r: [1.56, 1.63], d: "median of 9 answers (Neural 23.4-25.2 tok/s); 3 runs: 1.56-1.63\u00d7" },
+      v10: { x: 25.0756 / 14.7957, n: 25.0756, l: 14.7957, breakBefore: true, d: "Weighted decode over 6 follow-up answers per engine; 2 sessions, exact saved requests. Different method from the older medians." } } },
+    { k: "all", t: "All answers, weighted decode", c: "2 sessions per engine, exact request replay", unit: "tok/s", v: {
+      v10: { x: 1.72436287, n: 24.6910, l: 14.3189, d: "Total timed tokens / total decode seconds over 8 answers per engine. Neural: 4088 tokens / 165.5666 s; llama: 4096 / 286.0556 s. The 1.72x engine ratio is separate from the new CPU gain of 1.7-2.9%." } } },
     { k: "rewrite", t: "Rewriting a file just read", c: "server, same stretch of answer", unit: "tok/s", v: {
       v4: { x: 1.06, n: 15.15, l: 14.26, r: [1.05, 1.07], d: "2 runs each; Neural's first 192 tokens vs llama.cpp's whole 196-token answer" },
       v5: { x: 1.25, n: 17.88, l: 14.32, r: [1.21, 1.28], d: "2 runs each; Neural's first 192 tokens vs llama.cpp's whole 171-token answer; Neural's whole 1,536-token answer ran at 20.9 tok/s" },
@@ -634,7 +644,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     const aria = [];
     ROWS.forEach(r => {
       const m = r.research ? { x: r.hi } : r.v[id];
-      const pv = r.research || r.join === false ? null : VERS.slice(0, vi).reverse().find(v => r.v[v.id]), p = pv ? r.v[pv.id] : null;
+      const pv = r.research || r.join === false || (m && m.breakBefore) ? null : VERS.slice(0, vi).reverse().find(v => r.v[v.id]), p = pv ? r.v[pv.id] : null;
       if (!m) {
         const row = document.createElement("div"); row.className = "crow";
         const lbl = document.createElement("div"); lbl.className = "lbl"; lbl.textContent = r.t;
@@ -671,7 +681,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     const note = document.getElementById("barnote"), flag = ROWS.find(r => r.v && r.v[id] && r.v[id].flag);
     note.textContent = VERS[vi].date + " (" + VERS[vi].name + "): " + VERS[vi].what + "." + (flag ? " " + flag.v[id].flag : "");
     const key = document.getElementById("barkey"); key.querySelector(".wk") && key.querySelector(".wk").remove();
-    if (prev) { const s = document.createElement("span"); s.className = "wk"; s.innerHTML = '<i class="was-key"></i>&nbsp;'; s.appendChild(document.createTextNode("the previous measured result")); key.appendChild(s); }
+    if (prev && bars.querySelector(".was")) { const s = document.createElement("span"); s.className = "wk"; s.innerHTML = '<i class="was-key"></i>&nbsp;'; s.appendChild(document.createTextNode("the previous measured result")); key.appendChild(s); }
   };
   const scale = document.getElementById("scale");
   [0, 1, 2, 3].forEach(v => { const s = document.createElement("span"); s.style.left = pct(v); s.textContent = v + X; scale.appendChild(s); });
@@ -684,20 +694,20 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     const served = ROWS.filter(r => r.v);
     const answers = served.filter(r => r.k !== "prompt").flatMap(r => Object.values(r.v).flatMap(m => [m.x].concat(m.r || [])));   // whisker ends too
     const shared = [Math.min(0.9, Math.floor(Math.min(...answers) * 10) / 10), Math.ceil(Math.max(...answers) * 10 + 1) / 10];
-    ["follow", "first", "rewrite", "prompt"].forEach(key => {
+    ["all", "follow", "first", "rewrite", "prompt"].forEach(key => {
       const r = served.find(s => s.k === key);
       const pmax = key === "prompt" ? Math.max(8, Math.ceil(Math.max(...Object.values(r.v).map(m => m.x).concat(r.alt ? [r.alt.x] : [])) / 2) * 2) : 0;   // prompt axis grows in steps of 2 with the data
       const dom = key === "prompt" ? [0, pmax] : shared, ticks = key === "prompt" ? Array.from({ length: pmax / 2 + 1 }, (_, i) => i * 2) : [];
       if (!ticks.length) for (let v = Math.ceil(dom[0] * 10) / 10; v <= dom[1] + 1e-9; v += 0.1) if (Math.round(v * 10) % 2 === 0 || dom[1] - dom[0] < 0.5) ticks.push(Math.round(v * 10) / 10);
-      const W = 320, H = 170, L = 36, R = 58, T = 12, B = 26;
+      const W = 320, H = 210, L = 36, R = 58, T = 12, B = 66;
       const xs = i => L + (VERS.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (VERS.length - 1));
       const ys = v => T + (1 - (v - dom[0]) / (dom[1] - dom[0])) * (H - T - B);
       const box = document.createElement("div"); box.className = "tpanel";
       const h3 = document.createElement("h3"); h3.textContent = r.t; box.appendChild(h3);
       const pts = VERS.filter(v => r.v[v.id]).map(v => ({ ver: v, m: r.v[v.id], i: VERS.indexOf(v) }));
       const cp = document.createElement("span"); cp.className = "caption";
-      cp.textContent = pts.map(p => p.ver.date + " " + fx(p.m.x)).join(r.join === false ? " \u00b7 " : " \u2192 ") +
-        (key === "prompt" ? " \u00b7 own scale, not joined: the unchanged Sep 24 build measured " + fx(r.alt.x) + " on Sep 29" : "");
+      cp.textContent = pts.map(p => p.ver.date + " " + fx(p.m.x) + (p.m.breakBefore ? " (weighted replay)" : "")).join(" \u00b7 ") +
+        (key === "prompt" ? " \u00b7 own scale, not joined: warm prompts through Sep 30, fresh-session prompts on Oct 1; the unchanged Sep 24 build measured " + fx(r.alt.x) + " on Sep 29" : "");
       box.appendChild(cp);
       const svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, class: "tsvg", role: "group",
         "aria-label": r.t + ": " + pts.map(p => p.ver.date + " " + fx(p.m.x).replace(X, " times")).join(", ") + (r.alt ? "; the unchanged Sep 24 build measured again on Sep 29: " + fx(r.alt.x).replace(X, " times") : "") });
@@ -709,9 +719,14 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
         svgEl("line", { x1: L, x2: W - R + 10, y1: ys(1), y2: ys(1), class: "ref" }, svg);
         svgEl("text", { x: L - 6, y: ys(1) + 4, "text-anchor": "end" }, svg).textContent = "1" + X;
       }
-      VERS.forEach((v, i) => { svgEl("text", { x: xs(i), y: H - 6, "text-anchor": "middle" }, svg).textContent = v.date; });
+      VERS.forEach((v, i) => { const y = H - B + 17; svgEl("text", { x: xs(i), y, "text-anchor": "end", transform: "rotate(-45 " + xs(i) + " " + y + ")" }, svg).textContent = v.date; });
       pts.forEach(p => { if (p.m.r) svgEl("line", { x1: xs(p.i), x2: xs(p.i), y1: ys(p.m.r[0]), y2: ys(p.m.r[1]), class: "wh" }, svg); });
-      if (pts.length > 1 && r.join !== false) svgEl("polyline", { class: "ln", points: pts.map(p => xs(p.i) + "," + ys(p.m.x)).join(" ") }, svg);
+      if (r.join !== false) {
+        let segment = [];
+        const flush = () => { if (segment.length > 1) svgEl("polyline", { class: "ln", points: segment.map(p => xs(p.i) + "," + ys(p.m.x)).join(" ") }, svg); segment = []; };
+        pts.forEach(p => { if (p.m.breakBefore) flush(); segment.push(p); });
+        flush();
+      }
       // labels: only the latest point carries its value (the caption above lists every value, the tooltip the details);
       // a re-measured point at the same date takes the side away from its neighbour
       const mark = (x, y, cls, title, lines, label, dx, dy, anchor) => {
@@ -765,9 +780,9 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
       e.preventDefault(); tabs[j].focus(); show(tabs[j].dataset.view);
     });
   });
-  // deep links: #over-time, #sep-23, #sep-24, #sep-29, #sep-30, #sep-30-2, #sep-30-3, #sep-30-4 open that view (the tabs don't rewrite the URL)
-  const LINKS = { "#over-time": "time", "#sep-23": "v3", "#sep-24": "v4", "#sep-29": "v5", "#sep-30": "v6", "#sep-30-2": "v7", "#sep-30-3": "v8", "#sep-30-4": "v9" }, linked = LINKS[location.hash];
-  show(linked || "v9");
+  // deep links through #oct-1 open that view (the tabs don't rewrite the URL)
+  const LINKS = { "#over-time": "time", "#sep-23": "v3", "#sep-24": "v4", "#sep-29": "v5", "#sep-30": "v6", "#sep-30-2": "v7", "#sep-30-3": "v8", "#sep-30-4": "v9", "#oct-1": "v10" }, linked = LINKS[location.hash];
+  show(linked || "v10");
   if (linked) document.getElementById("results").scrollIntoView();
   addEventListener("hashchange", () => { const v = LINKS[location.hash]; if (v) { show(v); document.getElementById("results").scrollIntoView(); } });
 
