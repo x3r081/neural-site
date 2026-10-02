@@ -338,6 +338,17 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     </div>
   </section>
 
+<section class="wrap sec" id="research-oct2">
+<p class="tag">October 2 &middot; research</p>
+    <div class="sec-body">
+<h2>October 2 batch-execution research</h2>
+<p>A separate experiment processed 16 independent coding requests together. A clean split-graph screen produced 42,639 tokens in 1,454.035 seconds, or <strong>29.3246 aggregate tokens per second</strong>. That is the total across the cohort, including backend prompt processing; it is not the speed of one conversation or a measurement of the editor-to-answer experience.</p>
+<p>The same-output historical batch runs reached 23.595 and 23.623 aggregate tokens per second. The new screen was about 24.2% higher in throughput, calculated from the measured clocks. It is one later run against historical results, not a fresh repeated alternating comparison. The historical adaptive runs used different outputs and token counts, so they are excluded from this same-output chart and do not support a confirmed quality-equivalent gain.</p>
+<p><strong>The strict coding-task quality gate is not cleared.</strong> Frozen static review found paired rubric regressions in the final coding responses. That review did not execute the generated code and is not a general model-quality evaluation. Matching a numerical reference preserves the reference's answers without proving their quality. No production or end-to-end improvement is confirmed, no research change is promoted to the normal server. The October 1 production comparison above remains separate.</p>
+<p>The grouped version's full natural numerical audit passed 42,623 decode checks across 16 natural finals. Its separate timing did not complete: the first screen was interrupted by a Windows reboot, and an identical retry failed before generation at the host-allocation RAM-reserve guard. No grouped timing result is available, and the split timing repeat was deferred. Research is paused. See the separate <a href="index.html#oct-2-research">research chart and raw evidence</a> or the <a href="technical.html#research-oct2">method and limits</a>. The model and its precision were not changed.</p>
+    </div>
+  </section>
+
 <section class="wrap sec" id="why">
 <p class="tag">Why it matters</p>
     <div class="sec-body">
@@ -429,6 +440,6 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <footer>
   <div class="wrap">
     <span>Neural Server &middot; gpt-oss-120B by OpenAI (Apache&nbsp;2.0)</span>
-    <span>Speed figures measured on the development PC, September 2026 and October 1, 2026. Sizes come from the model's design. Text updated October 1, 2026 from the measurement records.</span>
+    <span>Speed figures measured on the development PC, September&ndash;October 2026. Sizes come from the model's design. October 2 research results; research paused; production comparison dated October 1.</span>
   </div>
 </footer>

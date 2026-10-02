@@ -1,0 +1,244 @@
+{
+  "schema": "neural_site_research_benchmark_summary_v1",
+  "status": "RESEARCH_PAUSED_FINAL_RESULTS_RECORDED",
+  "measurement_date": "2026-10-02",
+  "scope": "Closed-cohort experimental backend throughput only; not production, HTTP, single-request latency or a quality-equivalent improvement.",
+  "evidence_access": {
+    "summary": "Public-safe metadata for the final paused research results; prompts, generated text, token arrays and private source are excluded.",
+    "raw_evidence": "Private NeuralServer repository; requires authorized access.",
+    "archive_commit": "5f3ac01644beb8136c497b099752c839b3f578e2"
+  },
+  "model": {
+    "name": "OpenAI/gpt-oss-120B",
+    "class": "GptOssForCausalLM",
+    "type": "gpt_oss",
+    "precision": "Existing checkpoint native MXFP4 expert weights; existing dense-core arithmetic; no additional quantization or checkpoint substitution.",
+    "model_and_precision_unchanged": true
+  },
+  "hardware": {
+    "gpu": "NVIDIA RTX 3080 Ti 12 GiB",
+    "cpu": "Intel Core i7-11700K",
+    "ram": "64 GB DDR4-3000",
+    "os": "Windows"
+  },
+  "workload": {
+    "independent_requests": 16,
+    "arrival": "All 16 requests arrive at the same backend t0.",
+    "corpus_sha256": "905deed6caeb38e9e9bbc6b87e0ad54504f217f67671933f98da4496859c46c8",
+    "max_new_tokens_per_request": 4096,
+    "stop_policy": "Natural final stops; all 16 completed without length termination.",
+    "batch_prefix_policy": "Frozen batch, cold per request.",
+    "same_full_prompt_and_generated_token_ids_for_all_settled_runs": true
+  },
+  "clock": {
+    "unit": "aggregate generated tokens per cohort wall second",
+    "included_and_excluded": "arrival through prefills,CPU seed copies,H2D/D2H,growth,drains,checkpoints,Harmony and completion; excludes startup/graphs/diagnostics/HTTP",
+    "startup_graphs_diagnostics_http_excluded": true,
+    "prefill_seed_tokens_in_generation_count": 16,
+    "decode_calls_exclude_prefill_seeds": true
+  },
+  "profile": {
+    "torch_cpu_threads": 8,
+    "torch_cpu_interop_threads": 8,
+    "host_initial_rows": 4096,
+    "host_total_budget_bytes": 5368709120,
+    "host_available_ram_reserve_bytes": 1073741824,
+    "gpu_reserve_bytes": 268435456,
+    "stage_count": 1
+  },
+  "settled_runs": [
+    {
+      "id": "combined_batch_b1",
+      "label": "Combined batch B1",
+      "status": "completed_admitted",
+      "measurement": "MEASURED",
+      "scope": "historical_combined_graph",
+      "started_local": "2026-10-02T06:18:48.4392338+02:00",
+      "run_count": 1,
+      "source_commit": "3c0e0b22c8fe9d2404751e840dba4930257de68a",
+      "source_sha256": {
+        "server.py": "902ff96981b45a6f9768031357342450b497c2d46b9459ad9df9b3d38526c411",
+        "independent_streamed_batch.py": "2ff02e9e0adfd96fff6f99dd98336d2c2133dbedc5cc2cec9dbf7c5835a5b507",
+        "independent_streamed_kv.py": "38e192daf335fdf304b0346aaf4dae21dad18dc555ef2af8ff446a80d89f5d08",
+        "fused_core.py": "3fb4f9d8ee41361611372478fb1a316277dd371defed710506bd1b59102add09",
+        "kernels/gptoss_cpu_persistent.c": "6c8512084bc5fd6af3907326c3d3f20f77b0817186e6f134458e51d7871d1dc3",
+        "kernels/gptoss_cpu_multi.c": "f4cb63e1459d9bed82a17ad1d1f17f817a42fa7e170026f448043dc51d5edf81"
+      },
+      "generated_tokens_including_prefill_seeds": 42639,
+      "prefill_seed_tokens": 16,
+      "decode_calls": 42623,
+      "cohort_wall_seconds": 1807.118266000005,
+      "aggregate_generation_tokens_per_second": 23.595024632438683,
+      "natural_final_requests": 16,
+      "fallback_delta": 0,
+      "report": {
+        "sha256": "ad5c3bbc78657d7dfbb8463323f178fbd0b9c147dc00684033e1d3bd8ebe5b77",
+        "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_s1_h4096_abba01_batch_b1.json"
+      }
+    },
+    {
+      "id": "combined_batch_b2",
+      "label": "Combined batch B2",
+      "status": "completed_admitted",
+      "measurement": "MEASURED",
+      "scope": "historical_combined_graph",
+      "started_local": "2026-10-02T06:51:17.5272504+02:00",
+      "run_count": 1,
+      "source_commit": "3c0e0b22c8fe9d2404751e840dba4930257de68a",
+      "source_sha256": {
+        "server.py": "902ff96981b45a6f9768031357342450b497c2d46b9459ad9df9b3d38526c411",
+        "independent_streamed_batch.py": "2ff02e9e0adfd96fff6f99dd98336d2c2133dbedc5cc2cec9dbf7c5835a5b507",
+        "independent_streamed_kv.py": "38e192daf335fdf304b0346aaf4dae21dad18dc555ef2af8ff446a80d89f5d08",
+        "fused_core.py": "3fb4f9d8ee41361611372478fb1a316277dd371defed710506bd1b59102add09",
+        "kernels/gptoss_cpu_persistent.c": "6c8512084bc5fd6af3907326c3d3f20f77b0817186e6f134458e51d7871d1dc3",
+        "kernels/gptoss_cpu_multi.c": "f4cb63e1459d9bed82a17ad1d1f17f817a42fa7e170026f448043dc51d5edf81"
+      },
+      "generated_tokens_including_prefill_seeds": 42639,
+      "prefill_seed_tokens": 16,
+      "decode_calls": 42623,
+      "cohort_wall_seconds": 1805.0025781999866,
+      "aggregate_generation_tokens_per_second": 23.62268093961458,
+      "natural_final_requests": 16,
+      "fallback_delta": 0,
+      "report": {
+        "sha256": "69186036948d7771956842e9dfd98d9341bc88a0f0711f5a0584f78f746a6298",
+        "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_s1_h4096_abba01_batch_b2.json"
+      }
+    },
+    {
+      "id": "split_batch_b1",
+      "label": "Split batch B1",
+      "status": "completed_admitted",
+      "measurement": "MEASURED",
+      "scope": "clean_split_graph_screen",
+      "started_local": "2026-10-02T10:34:10.9327368+02:00",
+      "run_count": 1,
+      "source_commit": "993f5dc5643d6b236abcc7a328e52316567d6546",
+      "source_sha256": {
+        "server.py": "d98561281dbea37edd0dbaf42ef3369865258b83f11b39e0c9f4c7d87747abba",
+        "independent_streamed_batch.py": "2ff02e9e0adfd96fff6f99dd98336d2c2133dbedc5cc2cec9dbf7c5835a5b507",
+        "independent_streamed_kv.py": "38e192daf335fdf304b0346aaf4dae21dad18dc555ef2af8ff446a80d89f5d08",
+        "fused_core.py": "3fb4f9d8ee41361611372478fb1a316277dd371defed710506bd1b59102add09",
+        "kernels/gptoss_cpu_persistent.c": "6c8512084bc5fd6af3907326c3d3f20f77b0817186e6f134458e51d7871d1dc3",
+        "kernels/gptoss_cpu_multi.c": "f4cb63e1459d9bed82a17ad1d1f17f817a42fa7e170026f448043dc51d5edf81"
+      },
+      "generated_tokens_including_prefill_seeds": 42639,
+      "prefill_seed_tokens": 16,
+      "decode_calls": 42623,
+      "cohort_wall_seconds": 1454.035467900001,
+      "aggregate_generation_tokens_per_second": 29.324594166593208,
+      "natural_final_requests": 16,
+      "fallback_delta": 0,
+      "report": {
+        "sha256": "980db0c840a820a66f68c5b5007fece696f2baa70977f1821514f21fe38a5327",
+        "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.json"
+      }
+    }
+  ],
+  "comparisons": {
+    "measurement": "CALCULATED from MEASURED clocks",
+    "same_full_prompt_and_output_ids": true,
+    "split_vs_historical_combined": {
+      "b1": {
+        "historical_combined_cohort_wall_s": 1807.118266000005,
+        "current_split_cohort_wall_s": 1454.035467900001,
+        "historical_over_current_cohort_ratio": 1.2428295635800037,
+        "current_vs_historical_aggregate_throughput_change_percent": 24.282956358000373,
+        "current_vs_historical_wall_change_percent": -19.53844442519751,
+        "historical_combined_prefill_s": 22.1527233000088,
+        "historical_combined_decode_s": 1784.9655426999961
+      },
+      "b2": {
+        "historical_combined_cohort_wall_s": 1805.0025781999866,
+        "current_split_cohort_wall_s": 1454.035467900001,
+        "historical_over_current_cohort_ratio": 1.2413745180555134,
+        "current_vs_historical_aggregate_throughput_change_percent": 24.137451805551336,
+        "current_vs_historical_wall_change_percent": -19.444133462124057,
+        "historical_combined_prefill_s": 21.97600589999638,
+        "historical_combined_decode_s": 1783.0265722999902
+      }
+    },
+    "interpretation": "One clean split timing run versus historical same-output combined B1/B2. The split timing was not replicated or run contemporaneously; no isolated causal or end-to-end gain is established. Research paused."
+  },
+  "admission": {
+    "sha256": "418fbd6f49590c812e59334369254193e140927e3769ef76039a1b274e84a056",
+    "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.completed_admission01.json"
+  },
+  "quality": {
+    "gate": "NOT_CLEARED",
+    "basis": "Frozen blinded static final-answer review found paired coding-rubric regressions. Generated code was not executed by that review; no general model-quality degradation claim.",
+    "summary": {
+      "sha256": "b827112f6fae7fc774063b412f8ac54a5f6ef33c7c698544609b7e99de04f47f",
+      "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_abba01_quality_summary.json"
+    },
+    "integrity": {
+      "sha256": "db9b1869b49182e88c98e87255a543005b2e02dcc699aa7d86e96956971e6b35",
+      "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_abba01_quality_review_integrity.json"
+    }
+  },
+  "production": {
+    "promoted": false,
+    "confirmed_end_to_end_gain": false,
+    "october_1_comparison_is_separate": true
+  },
+  "native_and_model_sha256": {
+    "gptoss_cpu_persistent.dll": "c1221ecfacbeb56ccf14b54ba2f0b3a7c1e95ddec15d971a9f53b733dfb8d2ca",
+    "gptoss_cpu_multi.dll": "fd48ac7644c1a136f8635f89ecd0b1bf8f1be0caa38f3ffc16c3c778b1db9fbb",
+    "hotset_code.json": "ed039d31096a244050ee0f3aa3b153da5d2dd1e1adea2ecdd44201d6c69f8c96",
+    "metadata.json": "3bb2848c2302ae37134de51807617a4626c0fad6fb6197fe3b5f31a77b1c7b69",
+    "config.json": "933aeb666a3fd851133ddd7686414f369bc564c4185fb5704416550879f10566",
+    "model.safetensors.index.json": "ede2655fdc05008561983b6e0829c600727c28d591e071077377059f03a6c00e",
+    "memcpy_mt.dll": "68cdfda499d90fd61700af7e89fb5c4a137ade19d67be0028d36238ad10df003"
+  },
+  "finalization_outcomes": {
+    "research_status": "paused",
+    "split_repeat": {
+      "status": "deferred_not_run",
+      "reason": "Deferred after the identical grouped timing retry failed before generation on the explicit initial host-allocation RAM-reserve guard; no profile change or user-app termination was made.",
+      "metrics": null,
+      "report_sha256": null
+    },
+    "grouped_full_natural_audit": {
+      "status": "passed_admitted",
+      "decode_checks": 42623,
+      "natural_final_requests": 16,
+      "receipt_sha256": "75659708d1ad9f8b120a584fbd5b0a34109efd398a52d1ad67378ddee7a44ae5",
+      "raw_report_sha256": "67ea5e25950dec7cad2a3290db2dc146801802a73721d063248db3832e36b7f4",
+      "metrics": null,
+      "interpretation": "Numerical output audit only; no throughput result."
+    },
+    "grouped_timing": {
+      "status": "unavailable_no_completed_timing",
+      "metrics": null,
+      "report_sha256": "3ac076af77e7cad1bd3003c0a3a71bb3f37cb7268108869ba7065580a9e80b57",
+      "attempts": [
+        {
+          "id": "screen01",
+          "status": "interrupted_by_windows_reboot",
+          "record_sha256": "f12b93ae87f58117f41eca9d6129b058ea14d32fc3ff9520f1f43dba98867bd9"
+        },
+        {
+          "id": "final02",
+          "status": "failed_before_generation",
+          "failure": "MemoryError('full sixteen-lane initial host allocation lacks explicit RAM reserve')",
+          "python_exit_code": 1,
+          "source_unchanged": true,
+          "terminal": true
+        }
+      ],
+      "memory_context": {
+        "available_ram_after_prewarm_bytes": 2567573504,
+        "available_ram_after_releasing_unused_buffers_bytes": 2824241152
+      },
+      "profile_unchanged": true,
+      "interpretation": "No grouped timing measurement was produced."
+    },
+    "private_evidence_archive": {
+      "commit": "fed0590dbc6eff2e9b061de49cf346df0952b566",
+      "manifest_path": "benchmarks/streamed_final_evidence_20261002/archive_manifest.json",
+      "manifest_sha256": "b15d41ff49928e4e8a0cd14f644fb4ff4b966c08af0cea6a15e2985cb5a906cd",
+      "private_repository_url": "https://github.com/x3r081/NeuralServer/blob/fed0590dbc6eff2e9b061de49cf346df0952b566/benchmarks/streamed_final_evidence_20261002/archive_manifest.json",
+      "scope": "Final grouped audit and terminal outcomes; existing settled timing evidence remains linked to its original 5f3ac016 archive."
+    }
+  }
+}

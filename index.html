@@ -161,6 +161,12 @@ p { margin: 0; max-width: 64ch; }
 .ticks .scale { position: relative; height: 18px; font: 11px var(--mono); color: var(--muted); }
 .ticks .scale span { position: absolute; transform: translateX(-50%); }
 .chart-key { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.research-track { height: 34px; }
+.research-track .base { border-radius: 3px; background: var(--gpu); }
+.research-track .val { left: 8px; padding: 0; color: var(--on-gpu); }
+.research-track.historical .base { background: var(--cpu); }
+.research-track.historical .val { color: var(--on-cpu); }
+.research-table { overflow-x: auto; }
 .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .tile { border-top: 1px solid var(--line); padding-top: 12px; display: grid; gap: 4px; align-content: start; }
 .tile b { font: 600 clamp(24px, 2.6vw, 30px) var(--mono); font-variant-numeric: tabular-nums; }
@@ -392,8 +398,10 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <h2 id="res">Measured, not promised.</h2>
       <p>Same PC and existing gpt-oss-120B model, with fresh server processes taking turns against the installed llama.cpp b10361, using its decode-tuned <code>-ngl 99 -ncmoe 31 -t 8 -c 16384 -fa on --jinja</code> settings. October 1 uses the exact same saved API requests for both engines: a 13,000-token code context and four answers capped at 512 tokens, in Neural / llama / llama / Neural order. Decode rates are total timed tokens divided by total decode time, with two sessions per engine.</p>
       <p>The older dates keep their original methods and results. Their answer rates are medians, while October 1 uses weighted rates and fixed request replay. The prompt row is a warmed-up measurement through September 30 and a fresh-session measurement on October 1. The chart does not join those method changes as a continuous code improvement. The first two rows are historical short-context research results; the rewrite was not re-measured on October 1.</p>
-      <div class="vtabs" role="tablist" aria-label="Results by server version">
-        <button type="button" role="tab" id="tab-v10" aria-controls="chart" aria-selected="true" data-view="v10">Oct 1 <span>latest</span></button>
+      <p class="fine">October 2 adds a separate <a href="#oct-2-research">research screen</a> for 16 independent requests. It is aggregate backend throughput; the task-quality gate is not cleared, and there is no production promotion.</p>
+      <div class="vtabs" role="tablist" aria-label="Production history and research results">
+        <button type="button" role="tab" id="tab-research" aria-controls="researchchart" aria-selected="false" tabindex="-1" data-view="research">Oct 2 <span>research</span></button>
+        <button type="button" role="tab" id="tab-v10" aria-controls="chart" aria-selected="true" data-view="v10">Oct 1 <span>latest release</span></button>
         <button type="button" role="tab" id="tab-v9" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v9">Sep 30 (4) <span>v9</span></button>
         <button type="button" role="tab" id="tab-v8" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v8">Sep 30 (3) <span>v8</span></button>
         <button type="button" role="tab" id="tab-v7" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v7">Sep 30 (2) <span>v7</span></button>
@@ -421,7 +429,20 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="chart-key"><span><i class="sw gpu"></i>&nbsp;faster than llama.cpp</span><span><i class="sw cpu"></i>&nbsp;up to llama.cpp's speed</span><span><i class="was-key"></i>&nbsp;the unchanged Sep 24 build, measured again on Sep 29</span></div>
         <div class="tip" id="tip2" role="status" hidden></div>
       </div>
-      <details class="ctable"><summary>All numbers as a table</summary><div id="ctable"></div></details>
+      <div class="chart" id="researchchart" role="tabpanel" aria-labelledby="tab-research" hidden>
+        <h3>October 2 &middot; experimental backend throughput</h3>
+        <p>One clean split-graph screen completed 16 independent requests at <strong>29.3246 aggregate tokens/s</strong>: 42,639 generated tokens in 1,454.035 seconds. This includes prompt processing and K/V copying in the backend cohort clock. It is not one conversation's decode rate or an HTTP client measurement.</p>
+        <div id="research-bars" role="group" aria-label="Measured aggregate generated tokens per second for the same-output experimental batch workload"></div>
+        <div class="ticks"><div></div><div class="scale" id="research-scale"></div></div>
+        <div class="chart-key"><span><i class="sw cpu"></i>&nbsp;historical combined-graph batch</span><span><i class="sw gpu"></i>&nbsp;clean split-graph screen</span><span>Absolute aggregate generated tokens/s; zero-based scale</span></div>
+        <p class="fine">The split screen reproduced all prompt and output token IDs from the historical combined batch B1/B2 runs. Its throughput was 24.14&ndash;24.28% higher (CALCULATED from measured clocks). This is one later screen against historical runs, not a fresh alternating comparison or a replicated causal gain. The 42,639 count includes 16 first tokens produced by prefill; there were 42,623 decode calls.</p>
+        <p><strong>Task-quality gate: NOT CLEARED.</strong> Frozen static review found paired coding-rubric regressions; the generated code was not executed by that review. Matching the batch reference's token IDs preserves its answers, not a general quality guarantee. No production or end-to-end improvement is confirmed, and no research change is promoted to main.</p>
+        <p class="fine">The chart contains the two historical combined-graph timing runs and the single completed split-graph timing screen. No grouped timing bar is shown because no grouped run completed. October 1's production comparison, 24.6910 versus llama.cpp's 14.3189 tokens/s, uses a different workload and clock; it remains separate.</p>
+        <details class="ctable"><summary>Research numbers and evidence</summary><div class="research-table" id="research-table"></div></details>
+        <p id="research-final-status" class="fine">Research is paused. The grouped full natural numerical audit passed; no grouped timing completed, and the split timing repeat was deferred.</p>
+        <p class="caption"><a href="benchmark-summary-2026-10-02.json">Benchmark summary: metrics, method and hashes</a>. Private raw evidence: <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.json">split raw timing report</a>, <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.completed_admission01.json">terminal admission and historical comparison</a>, and <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_abba01_quality_summary.json">locked static task-quality summary</a>, archived on the research-results branch. Repository access is required. <a href="technical.html#research-oct2">Method and limits</a>.</p>
+      </div>
+      <details class="ctable"><summary>Production comparison: all numbers as a table</summary><div id="ctable"></div></details>
       <p id="inshort">On October 1, the selected profile averaged <strong>24.6910 tokens/s against llama.cpp's 14.3189</strong> across all answers: 1.72&times; on this workload. First answers were 23.6047 versus 13.0566 tokens/s; follow-ups were 25.0756 versus 14.7957. Prompt processing in these fresh sessions took a median 8.666 versus 137.552 seconds. That prompt comparison is separate from September 30's warmed-up result. The installed llama configuration favours decode; this was not an exhaustive search for its best prompt settings.</p>
       <p>The new software improvement is smaller than the engine-to-engine ratio. Keeping the eight CPU workers alive between expert calls raised Neural's decode rate by <strong>1.74%</strong> in the normal adaptive comparison (23.8649 to 24.2807 tokens/s), and <strong>2.885%</strong> in a fixed-placement control (19.8659 to 20.4391). Freezing placement was slower overall and is a diagnostic control, not the recommended setting. All corresponding output tokens matched in those CPU-only comparisons. A separate prefill study reduced warm 3k prompt latency by <strong>7.03%</strong> (3.69655 to 3.43665 seconds); releasing unused CUDA cache saved about <strong>1.11 GiB</strong> after a long prompt. These gains apply to different phases and workloads; they are not percentages to add together.</p>
       <p class="fine">No additional quantization or checkpoint change. Native checks passed 432 bitwise cases, full-model checks compared 192 decode steps exactly, and 103 selected repository tests passed. One adaptive combined-profile run differed on its final two answers, so its strict output-identity gate failed and remains in the evidence. Both Neural repeats in the final llama comparison matched each other. API-request equality does not establish identical internal prompt tokens or output quality across engines. Neural times 511 decoded tokens per 512-token answer; llama reports 512, and each timing convention is retained.</p>
@@ -528,7 +549,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
 <footer>
   <div class="wrap">
     <span>Neural Server &middot; gpt-oss-120B by OpenAI (Apache&nbsp;2.0)</span>
-    <span>Speed figures measured on the development PC, September&ndash;October 2026. Updated October 1, 2026. Sizes come from the model's design.</span>
+    <span>Speed figures measured on the development PC, September&ndash;October 2026. October 2 research results; research paused; production comparison dated October 1. Sizes come from the model's design.</span>
   </div>
 </footer>
 
@@ -763,13 +784,57 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     document.getElementById("ctable").appendChild(tb);
   })();
 
+  // ---------- Oct 2 research (absolute units; never enters the llama ratio data)
+  // Show only completed timing runs; terminal audit and failed/unavailable timing outcomes are summarized below.
+  const RESEARCH_OCT2 = {
+    archive: "https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/",
+    requests: 16, qualityGate: "NOT_CLEARED", productionPromoted: false,
+    runs: [
+      { label: "Combined batch B1", date: "Oct 2, 06:18 CEST", runCount: 1, scope: "historical", tokens: 42639, wallSeconds: 1807.118266000005, report: "independent_streamed_complete_20261002/streamed_stats_s1_h4096_abba01_batch_b1.json" },
+      { label: "Combined batch B2", date: "Oct 2, 06:51 CEST", runCount: 1, scope: "historical", tokens: 42639, wallSeconds: 1805.0025781999866, report: "independent_streamed_complete_20261002/streamed_stats_s1_h4096_abba01_batch_b2.json" },
+      { label: "Split batch B1", date: "Oct 2, 10:34 CEST", runCount: 1, scope: "clean screen", tokens: 42639, wallSeconds: 1454.035467900001, report: "streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.json" }
+    ],
+    groupedAudit: { status: "passed; 42,623 decode checks, 16 natural finals", receipt: "75659708d1ad9f8b120a584fbd5b0a34109efd398a52d1ad67378ddee7a44ae5" },
+    groupedTiming: { status: "unavailable; no completed timing", tokens: null, wallSeconds: null, interruptedRecord: "f12b93ae87f58117f41eca9d6129b058ea14d32fc3ff9520f1f43dba98867bd9", failedRetryReport: "3ac076af77e7cad1bd3003c0a3a71bb3f37cb7268108869ba7065580a9e80b57" },
+    researchStatus: "paused"
+  };
+  const researchChart = document.getElementById("researchchart");
+  const drawResearch = () => {
+    const host = document.getElementById("research-bars"), scale = document.getElementById("research-scale"), tableHost = document.getElementById("research-table");
+    host.textContent = ""; scale.textContent = ""; tableHost.textContent = "";
+    const largestRate = Math.max(...RESEARCH_OCT2.runs.map(r => r.tokens / r.wallSeconds));
+    const roughStep = largestRate / 4, magnitude = 10 ** Math.floor(Math.log10(roughStep));
+    const step = [1, 2, 2.5, 5, 10].find(n => n * magnitude >= roughStep) * magnitude;
+    const max = Math.ceil(largestRate / step) * step;
+    const table = document.createElement("table"); table.className = "spec-table";
+    const head = table.createTHead().insertRow();
+    ["Experimental run", "Started / runs", "Generated tokens", "Cohort wall (s)", "Aggregate tokens/s"].forEach(label => { const th = document.createElement("th"); th.scope = "col"; th.textContent = label; head.appendChild(th); });
+    const body = table.createTBody();
+    RESEARCH_OCT2.runs.forEach(r => {
+      const rate = r.tokens / r.wallSeconds, row = document.createElement("div"); row.className = "crow";
+      const label = document.createElement("div"); label.className = "lbl"; label.textContent = r.label;
+      const caption = document.createElement("span"); caption.className = "caption"; caption.textContent = r.date + " · " + r.runCount + " run · " + r.scope;
+      label.appendChild(document.createElement("br")); label.appendChild(caption);
+      const track = document.createElement("div"); track.className = "ctrack research-track" + (r.scope === "historical" ? " historical" : ""); track.setAttribute("role", "img"); track.setAttribute("aria-label", r.label + ": " + rate.toFixed(4) + " aggregate generated tokens per second");
+      const fill = document.createElement("div"); fill.className = "base"; fill.style.width = (rate / max * 100) + "%";
+      const value = document.createElement("span"); value.className = "val"; value.textContent = rate.toFixed(3) + " tok/s";
+      track.appendChild(fill); track.appendChild(value); row.appendChild(label); row.appendChild(track); host.appendChild(row);
+      const tr = body.insertRow(), th = document.createElement("th"); th.scope = "row";
+      const a = document.createElement("a"); a.href = RESEARCH_OCT2.archive + r.report; a.textContent = r.label; th.appendChild(a); tr.appendChild(th);
+      [r.date + " / " + r.runCount, r.tokens.toLocaleString("en-US"), r.wallSeconds.toFixed(3), rate.toFixed(6)].forEach(v => { tr.insertCell().textContent = v; });
+    });
+    for (let i = 0; i <= Math.round(max / step); i++) { const v = i * step, s = document.createElement("span"); s.style.left = (v / max * 100) + "%"; s.textContent = Number(v.toPrecision(10)); scale.appendChild(s); }
+    tableHost.appendChild(table);
+    document.getElementById("research-final-status").textContent = "Research status: paused. Grouped full natural numerical audit: " + RESEARCH_OCT2.groupedAudit.status + ". Grouped timing: " + RESEARCH_OCT2.groupedTiming.status + ". The first screen was interrupted by a Windows reboot; the retry failed before generation at the initial host-allocation RAM-reserve guard. No grouped timing rate is available. The split timing repeat was deferred.";
+  };
+
   // ---------- tabs (arrow keys move between them)
   const tabs = Array.from(document.querySelectorAll(".vtabs [role=tab]"));
   const show = view => {
     tabs.forEach(b => { const on = b.dataset.view === view; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
-    const time = view === "time";
-    chart.hidden = time; tchart.hidden = !time; tip.hidden = true; tip2.hidden = true;
-    if (time) drawTime(); else { chart.setAttribute("aria-labelledby", "tab-" + view); drawBars(view); }
+    const time = view === "time", research = view === "research";
+    chart.hidden = time || research; tchart.hidden = !time; researchChart.hidden = !research; tip.hidden = true; tip2.hidden = true;
+    if (research) drawResearch(); else if (time) drawTime(); else { chart.setAttribute("aria-labelledby", "tab-" + view); drawBars(view); }
   };
   tabs.forEach((b, i) => {
     b.addEventListener("click", () => show(b.dataset.view));
@@ -781,7 +846,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     });
   });
   // deep links through #oct-1 open that view (the tabs don't rewrite the URL)
-  const LINKS = { "#over-time": "time", "#sep-23": "v3", "#sep-24": "v4", "#sep-29": "v5", "#sep-30": "v6", "#sep-30-2": "v7", "#sep-30-3": "v8", "#sep-30-4": "v9", "#oct-1": "v10" }, linked = LINKS[location.hash];
+  const LINKS = { "#oct-2-research": "research", "#over-time": "time", "#sep-23": "v3", "#sep-24": "v4", "#sep-29": "v5", "#sep-30": "v6", "#sep-30-2": "v7", "#sep-30-3": "v8", "#sep-30-4": "v9", "#oct-1": "v10" }, linked = LINKS[location.hash];
   show(linked || "v10");
   if (linked) document.getElementById("results").scrollIntoView();
   addEventListener("hashchange", () => { const v = LINKS[location.hash]; if (v) { show(v); document.getElementById("results").scrollIntoView(); } });
