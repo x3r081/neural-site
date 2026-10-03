@@ -283,7 +283,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <a href="#how">How it works</a>
       <a href="#results">Results</a>
       <a href="#coding">For coding</a>
-      <a href="#start">Get started</a>
+      <a href="#start">Download</a>
       <a href="technical.html">Technical</a>
       <a href="overview.html">For decision makers</a>
     </nav>
@@ -294,11 +294,12 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   <section class="wrap hero" aria-labelledby="h1">
     <p class="tag">Neural &middot; a local AI server for gpt-oss-120B</p>
     <h1 id="h1">A 120-billion-parameter AI, running on one gaming PC.</h1>
-    <p class="lede">Neural runs OpenAI's gpt-oss-120B, a model built for datacenter GPUs, on a single 12&nbsp;GB graphics card plus 64&nbsp;GB of RAM. It is private and fast enough to work with, and it plugs into coding tools like Continue in VS&nbsp;Code or Cursor.</p>
+      <p class="lede">The current Neural runtime runs OpenAI's original GPT-OSS 120B locally on a Windows PC, with terminal chat and an OpenAI-compatible local API. The production measurements further down this page belong to the separate NeuralServer runtime.</p>
+    <p class="lede"><a href="#start">Download Neural and follow the beginner install steps</a>. This installer is for the current model-aware runtime; the performance results below describe the separate NeuralServer production runtime.</p>
     <dl class="facts">
       <div><dt>117B</dt><dd>parameters in the model</dd></div>
       <div><dt>12&nbsp;GB</dt><dd>graphics card (RTX 3080&nbsp;Ti)</dd></div>
-      <div><dt>1.72&times;</dt><dd>llama.cpp's decode speed on the latest matched coding workload</dd></div>
+      <div><dt>1.72&times;</dt><dd>historical NeuralServer production result against llama.cpp</dd></div>
       <div><dt>0</dt><dd>bytes sent to the cloud</dd></div>
     </dl>
 
@@ -388,7 +389,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <li class="c">At the same moment, the CPU computes the others straight from RAM.</li>
         <li>The results are added up and passed on. After all 36 layers, the next token appears.</li>
       </ol>
-      <p>That whole loop averaged 24.69 tokens a second on the latest coding workload, including the first answer and three follow-ups in each session.</p>
+      <p>In the historical NeuralServer production-runtime comparison, that loop averaged 24.69 tokens a second, including the first answer and three follow-ups in each session. This is not a measurement of the current model-aware runtime.</p>
     </div>
   </section>
 
@@ -400,7 +401,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
       <p>The older dates keep their original methods and results. Their answer rates are medians, while October 1 uses weighted rates and fixed request replay. The prompt row is a warmed-up measurement through September 30 and a fresh-session measurement on October 1. The chart does not join those method changes as a continuous code improvement. The first two rows are historical short-context research results; the rewrite was not re-measured on October 1.</p>
       <p class="fine">October 2 adds a separate <a href="#oct-2-research">research screen</a> for 16 independent requests. It is aggregate backend throughput; the task-quality gate is not cleared, and there is no production promotion.</p>
       <div class="vtabs" role="tablist" aria-label="Production history and research results">
-        <button type="button" role="tab" id="tab-research" aria-controls="researchchart" aria-selected="false" tabindex="-1" data-view="research">Oct 2 <span>research</span></button>
+        <button type="button" role="tab" id="tab-research" aria-controls="oct-2-research" aria-selected="false" tabindex="-1" data-view="research">Oct 2 <span>research</span></button>
         <button type="button" role="tab" id="tab-v10" aria-controls="chart" aria-selected="true" data-view="v10">Oct 1 <span>latest release</span></button>
         <button type="button" role="tab" id="tab-v9" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v9">Sep 30 (4) <span>v9</span></button>
         <button type="button" role="tab" id="tab-v8" aria-controls="chart" aria-selected="false" tabindex="-1" data-view="v8">Sep 30 (3) <span>v8</span></button>
@@ -429,7 +430,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="chart-key"><span><i class="sw gpu"></i>&nbsp;faster than llama.cpp</span><span><i class="sw cpu"></i>&nbsp;up to llama.cpp's speed</span><span><i class="was-key"></i>&nbsp;the unchanged Sep 24 build, measured again on Sep 29</span></div>
         <div class="tip" id="tip2" role="status" hidden></div>
       </div>
-      <div class="chart" id="researchchart" role="tabpanel" aria-labelledby="tab-research" hidden>
+      <div class="chart" id="oct-2-research" role="tabpanel" aria-labelledby="tab-research" hidden>
         <h3>October 2 &middot; experimental backend throughput</h3>
         <p>One clean split-graph screen completed 16 independent requests at <strong>29.3246 aggregate tokens/s</strong>: 42,639 generated tokens in 1,454.035 seconds. This includes prompt processing and K/V copying in the backend cohort clock. It is not one conversation's decode rate or an HTTP client measurement.</p>
         <div id="research-bars" role="group" aria-label="Measured aggregate generated tokens per second for the same-output experimental batch workload"></div>
@@ -437,13 +438,13 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div class="chart-key"><span><i class="sw cpu"></i>&nbsp;historical combined-graph batch</span><span><i class="sw gpu"></i>&nbsp;clean split-graph screen</span><span>Absolute aggregate generated tokens/s; zero-based scale</span></div>
         <p class="fine">The split screen reproduced all prompt and output token IDs from the historical combined batch B1/B2 runs. Its throughput was 24.14&ndash;24.28% higher (CALCULATED from measured clocks). This is one later screen against historical runs, not a fresh alternating comparison or a replicated causal gain. The 42,639 count includes 16 first tokens produced by prefill; there were 42,623 decode calls.</p>
         <p><strong>Task-quality gate: NOT CLEARED.</strong> Frozen static review found paired coding-rubric regressions; the generated code was not executed by that review. Matching the batch reference's token IDs preserves its answers, not a general quality guarantee. No production or end-to-end improvement is confirmed, and no research change is promoted to main.</p>
-        <p class="fine">The chart contains the two historical combined-graph timing runs and the single completed split-graph timing screen. No grouped timing bar is shown because no grouped run completed. October 1's production comparison, 24.6910 versus llama.cpp's 14.3189 tokens/s, uses a different workload and clock; it remains separate.</p>
+        <p class="fine">The chart contains the two historical combined-graph timing runs and the single completed split-graph timing screen. No grouped timing bar is shown because no grouped run completed. October 1's separate NeuralServer production-runtime comparison, 24.6910 versus llama.cpp's 14.3189 tokens/s, uses a different workload and clock.</p>
         <details class="ctable"><summary>Research numbers and evidence</summary><div class="research-table" id="research-table"></div></details>
         <p id="research-final-status" class="fine">Research is paused. The grouped full natural numerical audit passed; no grouped timing completed, and the split timing repeat was deferred.</p>
         <p class="caption"><a href="benchmark-summary-2026-10-02.json">Benchmark summary: metrics, method and hashes</a>. Private raw evidence: <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.json">split raw timing report</a>, <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/streamed_split_graphs_20261002/split_s1_h4096_timing_b1_screen01.completed_admission01.json">terminal admission and historical comparison</a>, and <a href="https://github.com/x3r081/NeuralServer/blob/5f3ac01644beb8136c497b099752c839b3f578e2/benchmarks/independent_streamed_complete_20261002/streamed_stats_abba01_quality_summary.json">locked static task-quality summary</a>, archived on the research-results branch. Repository access is required. <a href="technical.html#research-oct2">Method and limits</a>.</p>
       </div>
       <details class="ctable"><summary>Production comparison: all numbers as a table</summary><div id="ctable"></div></details>
-      <p id="inshort">On October 1, the selected profile averaged <strong>24.6910 tokens/s against llama.cpp's 14.3189</strong> across all answers: 1.72&times; on this workload. First answers were 23.6047 versus 13.0566 tokens/s; follow-ups were 25.0756 versus 14.7957. Prompt processing in these fresh sessions took a median 8.666 versus 137.552 seconds. That prompt comparison is separate from September 30's warmed-up result. The installed llama configuration favours decode; this was not an exhaustive search for its best prompt settings.</p>
+      <p id="inshort">In the October 1 NeuralServer production-runtime comparison, the selected profile averaged <strong>24.6910 tokens/s against llama.cpp's 14.3189</strong> across all answers: 1.72&times; on this workload. First answers were 23.6047 versus 13.0566 tokens/s; follow-ups were 25.0756 versus 14.7957. Prompt processing in these fresh sessions took a median 8.666 versus 137.552 seconds. That prompt comparison is separate from September 30's warmed-up result. The installed llama configuration favours decode; this was not an exhaustive search for its best prompt settings.</p>
       <p>The new software improvement is smaller than the engine-to-engine ratio. Keeping the eight CPU workers alive between expert calls raised Neural's decode rate by <strong>1.74%</strong> in the normal adaptive comparison (23.8649 to 24.2807 tokens/s), and <strong>2.885%</strong> in a fixed-placement control (19.8659 to 20.4391). Freezing placement was slower overall and is a diagnostic control, not the recommended setting. All corresponding output tokens matched in those CPU-only comparisons. A separate prefill study reduced warm 3k prompt latency by <strong>7.03%</strong> (3.69655 to 3.43665 seconds); releasing unused CUDA cache saved about <strong>1.11 GiB</strong> after a long prompt. These gains apply to different phases and workloads; they are not percentages to add together.</p>
       <p class="fine">No additional quantization or checkpoint change. Native checks passed 432 bitwise cases, full-model checks compared 192 decode steps exactly, and 103 selected repository tests passed. One adaptive combined-profile run differed on its final two answers, so its strict output-identity gate failed and remains in the evidence. Both Neural repeats in the final llama comparison matched each other. API-request equality does not establish identical internal prompt tokens or output quality across engines. Neural times 511 decoded tokens per 512-token answer; llama reports 512, and each timing convention is retained.</p>
       <p class="caption">Sources: <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_DECODE_FOLLOWUP_2026-10-01.md">decode study and reproduction</a>, <a href="https://github.com/x3r081/NeuralServer/blob/main/benchmarks/codex_decode_followup_20261001/serving_verified.json">verified comparison</a>, and <a href="https://github.com/x3r081/NeuralServer/blob/main/docs/CODEX_OPTIMIZATION_REVIEW_2026-10-01.md">prefill/cache review</a>. All slow observations and failed experiments are retained. Source links require access to the private repository.</p>
@@ -461,19 +462,15 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
     <p class="tag">For coding</p>
     <div class="sec-body">
       <h2 id="cod">Plugs into your editor like a cloud model.</h2>
-      <p>Neural speaks the OpenAI Chat Completions API. Point tools that use it at the server: Continue in VS&nbsp;Code or Cursor, the OpenAI SDKs, or your own scripts. Cursor's own built-in agent can't reach local models, and autocomplete (<span class="mono">/v1/completions</span>), the Responses API and images are not supported.</p>
+      <p>The current model-aware runtime includes terminal chat and a local OpenAI-compatible chat API. An API client running on this PC can connect to it with these settings:</p>
       <table class="spec-table">
-        <tr><th scope="row">Base URL</th><td>http://127.0.0.1:8000/v1</td></tr>
+        <tr><th scope="row">Base URL</th><td>http://127.0.0.1:8001/v1</td></tr>
         <tr><th scope="row">Model</th><td>gpt-oss-120b-neural</td></tr>
-        <tr><th scope="row">API key</th><td>any value (optional lock: NEURAL_API_KEY)</td></tr>
+        <tr><th scope="row">API key</th><td>Bearer key required by the client; server does not check it by default. If <code>NEURAL_API_KEY</code> is set, use that value.</td></tr>
         <tr><th scope="row">Context</th><td>16,384 tokens</td></tr>
+        <tr><th scope="row">Access</th><td>Local PC only; the server listens on 127.0.0.1</td></tr>
       </table>
-      <ul class="checks">
-        <li>Tool calls and streaming, with the model's reasoning shown separately</li>
-        <li>Remembers the conversation: each new step only processes what is new</li>
-        <li>Works while you read: after an answer, it prepares for your next message</li>
-        <li>Private by design: no account, no subscription, nothing leaves the PC</li>
-      </ul>
+      <p>The built-in interface is terminal chat; the program does not open a browser chat page. See the <a href="https://github.com/x3r081/neural/blob/main/docs/TECHNICAL_OVERVIEW.md#supported-use-and-limits">runtime API notes</a> for details.</p>
     </div>
   </section>
 
@@ -485,19 +482,19 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
         <div>
           <h3>You need</h3>
           <ul>
-            <li>Windows 10 or 11</li>
-            <li>An NVIDIA RTX 30-series or newer graphics card with 12&nbsp;GB or more (tested on an RTX 3080&nbsp;Ti), with an up-to-date driver (CUDA&nbsp;13)</li>
-            <li>A CPU with AVX-512, such as an Intel 11th-gen Core, a Xeon W or Xeon Scalable, or an AMD chip with Zen&nbsp;4 or newer cores (any Ryzen 7000 or 9000 desktop chip, or a laptop chip from the 7040 series on). Intel Core chips from 12th gen on lack it, and so do Ryzen 7020, 7030 and 7035 laptop chips.</li>
-            <li>64&nbsp;GB of RAM</li>
-            <li>About 120&nbsp;GB free on an NVMe SSD</li>
+            <li>Windows 10 or 11, 64-bit, and Python 3.12 64-bit.</li>
+            <li>An NVIDIA Ampere-or-newer GPU with BF16 support and a driver that supports CUDA 13. The tested PC has an RTX 3080 Ti with 12 GiB of graphics memory; 12 GiB is the tested configuration, not a universal minimum.</li>
+            <li>A CPU with AVX2 and FMA. Neural uses a verified AVX-512 build only on its matching CPU; other compatible CPUs use a slower AVX2+FMA path, with slower prompt processing.</li>
+            <li>64&nbsp;GB of RAM is recommended.</li>
+            <li>About 195&nbsp;GiB free on the data drive. The model and expert stores remain after setup.</li>
           </ul>
         </div>
         <div>
           <h3>Good to know</h3>
           <ul>
             <li>One conversation at a time: it is a personal server, not a shared one.</li>
-            <li>The latest coding comparison averaged 24.69 tokens per second. Different prompts, memory pressure and background work can change that result.</li>
-            <li>Startup takes about 2 minutes.</li>
+            <li>The October 1 NeuralServer production-runtime comparison averaged 24.69 tokens per second on its tested coding workload. That historical result does not measure the current model-aware runtime; other workloads and system conditions can also change performance.</li>
+            <li>Setup and first startup can take several minutes or longer. Time varies with the PC and download speed.</li>
             <li>Speed depends on free RAM, so close memory-hungry apps first.</li>
           </ul>
         </div>
@@ -506,30 +503,29 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
   </section>
 
   <section class="wrap sec" id="start" aria-labelledby="go">
-    <p class="tag">Get started</p>
+    <p class="tag">Download and install</p>
     <div class="sec-body">
-      <h2 id="go">Three steps to your own 120B model.</h2>
-      <p>The code lives in a private GitHub repository for now, so ask me for access first. Then type these into Command Prompt (not PowerShell), all in the same window.</p>
-      <p class="step-t">1. Get the code and its Python packages</p>
-      <div class="code"><button class="copy" type="button" data-for="c1">Copy</button><pre id="c1">git clone https://github.com/x3r081/NeuralServer.git
-cd NeuralServer
-py -3.12 -m venv .venv
-.venv\Scripts\pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu130</pre></div>
-      <p class="step-t">2. Download the model (61 GB) and build the expert store once</p>
-      <div class="code"><button class="copy" type="button" data-for="c2">Copy</button><pre id="c2">.venv\Scripts\hf download openai/gpt-oss-120b --exclude "original/*" --exclude "metal/*" --local-dir D:\Models\gpt-oss-120b
-set NEURAL_MODEL_DIR=D:\Models\gpt-oss-120b
-set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_prepacked
-.venv\Scripts\python tools\build_store.py</pre></div>
-      <p class="step-t">2b. Optional: pack the store (used for the Sep 30 and Oct 1 measurements; lossless, less to read per token; needs another 55 GB of disk while both copies exist)</p>
-      <div class="code"><button class="copy" type="button" data-for="c2b">Copy</button><pre id="c2b">.venv\Scripts\python tools\pack_store.py --dst D:\NeuralStores\gptoss120b_ps4 --verify
-set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
-      <p class="step-t">3. Start the server, then connect your editor</p>
-      <div class="code"><button class="copy" type="button" data-for="c3">Copy</button><pre id="c3">.\start_neural_server.bat</pre></div>
-      <p>The editor settings are under <a href="#coding">For coding</a> above.</p>
-      <p>The October 1 profile adds <code>--kdll gptoss_cpu_persistent.dll --kernel-persistent 1 --grouped-prefill-gemm 1 --grouped-prefill-min-tokens 1024 --grouped-prefill-max-tokens 4096 --trim-prefill-cache 1 --masked-gemv 0</code> to that launch command. The <a href="https://github.com/x3r081/NeuralServer/blob/main/start_neural_optimized.bat">tested launcher</a> records the development PC's paths; adapt those paths for another installation. The persistent DLL is built for the tested Windows/AVX-512 host. The ordinary launcher and server defaults remain unchanged.</p>
+      <h2 id="go">Run the original GPT-OSS 120B model on your PC.</h2>
+      <p>Download the current Neural repository as a ZIP, extract it, and use the two included Windows launchers. The installer prepares the Python environment, downloads the official model, and builds its local expert stores for you.</p>
+      <p><strong><a href="https://github.com/x3r081/neural/archive/refs/heads/main.zip">Download Neural for Windows (ZIP)</a></strong> &middot; <a href="https://github.com/x3r081/neural">View the GitHub repository</a></p>
+      <p>For a fuller beginner guide, including custom data folders and troubleshooting, see the <a href="https://github.com/x3r081/neural/blob/main/docs/QUICK_START.md">Windows quick start</a>.</p>
+      <h3>Before you download</h3>
+      <ul>
+        <li>Windows 10 or 11, 64-bit, with Python 3.12 64-bit from <a href="https://www.python.org/downloads/release/python-31210/">the official Python download page</a>.</li>
+        <li>An NVIDIA Ampere-or-newer GPU with BF16 support and a driver that supports CUDA 13, plus a CPU with AVX2 and FMA.</li>
+        <li>64 GB of system RAM is recommended. Allow about 195 GiB free on the data drive for the model and expert stores; setup keeps the model and stores after installation.</li>
+      </ul>
+      <h3>Install and start</h3>
+      <ol>
+        <li>Install Python 3.12 if needed, using the official link above. Choose <strong>Windows installer (64-bit)</strong> and keep the Python launcher selected.</li>
+        <li>Download the ZIP and extract it. Open the extracted <code>neural-main</code> folder.</li>
+        <li>Double-click <code>install_neural.bat</code> and wait for setup to finish. It downloads the original GPT-OSS 120B model and prepares the local files; this large first download can take a while.</li>
+        <li>Double-click <code>start_neural.bat</code>. Neural opens terminal chat and starts its local API at <code>http://127.0.0.1:8001/v1</code>.</li>
+      </ol>
+      <p>The terminal chat is the included chat interface. An optional model advisor can be started with <code>start_neural_advisor.bat</code>; its report opens at port 8002. It does not choose or switch models automatically. Neural's default is the original GPT-OSS 120B checkpoint.</p>
+      <p>These instructions cover the current model-aware runtime. The site’s benchmark charts and historical server setup describe the separate NeuralServer production runtime; their figures are not measurements of this installer/runtime.</p>
     </div>
   </section>
-
   <section class="wrap sec" aria-labelledby="faqh">
     <p class="tag">Questions</p>
     <div class="sec-body">
@@ -538,7 +534,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
         <details><summary>Is this the full model, or a cut-down version?</summary><p>It is the full gpt-oss-120B. OpenAI's published 4-bit expert weights are copied byte for byte into Neural's store. Nothing is re-quantized or pruned.</p></details>
         <details><summary>Does splitting the work change the answers?</summary><p>The math is the same model. Neural's fast graphics-card code adds numbers in a slightly different order than the reference code, as GPU code generally does. Output quality was tested statistically, and the difference stays inside the spread the reference code itself shows when only its rounding order changes.</p></details>
         <details><summary>Why does RAM matter so much?</summary><p>Every expert the CPU computes has to be read from RAM. Each token needs about 1.9&nbsp;GB of expert weights in total, split between the graphics card and RAM. For code, the limit is how fast RAM can be read.</p></details>
-        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is widely supported. On this PC, the October 1 matched coding workload measured 24.69 versus 14.32 tokens/s overall, or 1.72&times;, with this installed decode-tuned configuration. The new persistent CPU workers account for a separate 1.7&ndash;2.9% Neural improvement, not the whole engine advantage. Neural also preserves conversation state for coding tools. These measurements are specific to this host and workload; they do not establish a universal advantage.</p></details>
+        <details><summary>Why not just use llama.cpp?</summary><p>llama.cpp is widely supported. In the historical NeuralServer production-runtime comparison on this PC, the October 1 matched coding workload measured 24.69 versus 14.32 tokens/s overall, or 1.72&times;, with a decode-tuned configuration. The new persistent CPU workers accounted for a separate 1.7&ndash;2.9% improvement within that runtime. These measurements are specific to that host, runtime and workload; they are not performance claims for the current model-aware runtime.</p></details>
         <details><summary>Can I run it on a Mac or on Linux?</summary><p>Not today. The server is built and tested on Windows with an NVIDIA card. The ideas carry over, but the code does not yet.</p></details>
         <details><summary>Where did this come from?</summary><p>Neural began as a research project on running very large mixture-of-experts models on consumer hardware. It kept a detailed lab notebook, including the ideas that failed. This server is what came out of it.</p></details>
       </div>
@@ -798,7 +794,7 @@ set NEURAL_STORE_DIR=D:\NeuralStores\gptoss120b_ps4</pre></div>
     groupedTiming: { status: "unavailable; no completed timing", tokens: null, wallSeconds: null, interruptedRecord: "f12b93ae87f58117f41eca9d6129b058ea14d32fc3ff9520f1f43dba98867bd9", failedRetryReport: "3ac076af77e7cad1bd3003c0a3a71bb3f37cb7268108869ba7065580a9e80b57" },
     researchStatus: "paused"
   };
-  const researchChart = document.getElementById("researchchart");
+  const researchChart = document.getElementById("oct-2-research");
   const drawResearch = () => {
     const host = document.getElementById("research-bars"), scale = document.getElementById("research-scale"), tableHost = document.getElementById("research-table");
     host.textContent = ""; scale.textContent = ""; tableHost.textContent = "";
